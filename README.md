@@ -3,6 +3,7 @@
 
 ## *Shopify Theme setup*
 
-= Vite
+- Uses:
+- Vite
 - ES6
 - Shopify
