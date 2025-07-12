@@ -1,0 +1,13 @@
+# Ignore built assets and dependencies
+assets/*
+!assets/.keep        # Empty file to preserve directory
+frontend/node_modules
+frontend/dist
+
+# Ignore system files
+.DS_Store
+*.log
+
+# Ignore deployment artifacts
+theme.zip
+.env

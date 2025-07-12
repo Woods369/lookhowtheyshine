@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ shop.name }}</title>
+  {{ content_for_header }}
+  {{ 'main.min.js' | asset_url | script_tag }}
+</head>
+<body>
+  <h1>{{ shop.name }}</h1>
+  {{ content_for_layout }}
+</body>
+</html>
