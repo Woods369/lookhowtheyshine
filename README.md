@@ -1,7 +1,7 @@
 
 # LookHowTheyShine®
 
-## *Shopify Theme setup*
+*Shopify Theme setup*
 
 - Vite
 - ES6
