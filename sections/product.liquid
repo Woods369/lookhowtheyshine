@@ -1,0 +1,95 @@
+{% comment %}
+This section is used in the product template to render product page with
+media, content, and add-to-cart form.
+{% endcomment %}
+
+<div class="product mx-8 max-w-[750px] lg:mx-auto sm:mt-8 mt-[6rem] grid [grid-template-areas:'info'_'gallery'_'form']">
+  <div class="product-info flex flex-col [grid-area:info]">
+    <h1 class="text-lg">{{ product.title }}</h1>
+    <p>{{ product.price | money }}</p>
+    <p class="text-md">{{ product.description }}</p>
+  </div>
+
+  <div class="product-gallery grid [grid-area:gallery]">
+    <div class="product-active w-full">
+      {% render 'image',
+      class: 'active-image w-full aspect-square object-cover transition-opacity duration-300 ease-in-out',
+      image: product.images.first
+      %}
+    </div>
+
+    <div class="product-thumbnails grid grid-flow-col gap-x-8 overflow-x-auto overflow-y-hidden">
+      {% for image in product.images %}
+      <div class="thumbnail-wrapper {% if forloop.first %}selected active-thumbnail{% else %}grayscale-[0.7]{% endif %} opacity-30 hover:opacity-100 hover:grayscale-0 duration-100 ease-in-out cursor-pointer"
+        data-highres-src="{{ image | image_url: width: 1200, height: 1200, crop: 'center' }}"
+        data-image-id="{{ image.id }}">
+        {{ image | image_url: width: 200 | image_tag : preload: true , class: 'w-full aspect-square object-cover' }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="product-form grid grid-flow-col gap-4 auto-cols-fr [grid-area:form]">
+    {% form 'product', product, class: "grid gap-[10px]" %}
+      {% assign current_variant = product.selected_or_first_available_variant %}
+
+      <div class="form-group relative border-none w-full text-center mb-[10px] after:content-[''] after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXNxdWFyZS1jaGV2cm9uLWRvd24taWNvbiBsdWNpZGUtc3F1YXJlLWNoZXZyb24tZG93biI+PHJlY3Qgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB4PSIzIiB5PSIzIiByeD0iMiIvPjxwYXRoIGQ9Im0xNiAxMC00IDQtNC00Ii8+PC9zdmc+')] after:bg-center after:absolute after:opacity-50 after:right-[25px] after:top-[calc(50%+12.5px)] after:-translate-y-1/2 after:pointer-events-none after:w-[25px] after:aspect-square">
+        <label for="variants" class="block mb-[5px] text-[#aaa] italic text-left">Please select</label>
+        <select id="variants" name="variants" class="appearance-none text-xl border-none w-full bg-transparent px-[25px] py-[10px] bg-[color-mix(in_srgb,#f0f0f0,#ffffff)]">
+          {% for variant in product.variants %}
+          <option value="{{ variant.id }}" {% if variant==current_variant %} selected="selected" {% endif %}>
+            {{ variant.title }} - {{ variant.price | money }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity" class="text-[#aaa] italic text-left">Quantity</label>
+        <input id="quantity" type="number" name="quantity" min="1" value="1"
+          max="{{ current_variant.inventory_quantity }}" required
+          class="appearance-none outline-none border-none bg-[color-mix(in_srgb,#f0f0f0,#ffffff)] p-[10px] text-base">
+      </div>
+
+      <input type="submit" value="Add to cart" 
+        class="bg-[color-mix(in_srgb,green_75%,transparent)] text-white p-[15px] text-base cursor-pointer border-none transition-opacity duration-300 ease-in-out hover:opacity-90">
+      {{ form | payment_button }}
+    {% endform %}
+  </div>
+</div>
+
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', function() {
+    const thumbnailWrappers = document.querySelectorAll('.thumbnail-wrapper');
+    const activeImage = document.querySelector('.active-image img');
+
+    thumbnailWrappers.forEach(wrapper => {
+    wrapper.addEventListener('click', function() {
+    const highResSrc = this.dataset.highresSrc;
+
+    // Update active image
+    activeImage.src = highResSrc;
+    activeImage.srcset = ''; // Clear srcset to prevent conflicts
+    activeImage.alt = this.querySelector('img').alt;
+
+    // Update active thumbnail class
+    thumbnailWrappers.forEach(w => {
+      w.classList.remove('active-thumbnail');
+      w.classList.add('grayscale-[0.7]');
+    });
+    this.classList.add('active-thumbnail');
+    this.classList.remove('grayscale-[0.7]');
+    });
+    });
+  });
+{% endjavascript %}
+
+{% schema %}
+  {
+  "name": "t:general.product",
+  "settings": [],
+  "disabled_on": {
+  "groups": ["header", "footer"]
+  }
+  }
+{% endschema %}

@@ -1,0 +1,191 @@
+{% comment %} 
+ This section is used in the homepage to showcase bestsellers.
+{% endcomment %}
+
+<div class="bestsellers">
+ 
+</div>
+
+<div class="heading">
+
+</div>
+
+{% style %}
+  .video-carousel.sect {
+    min-height: 100vh;
+    min-width: 100vw;
+    overflow: hidden;
+    z-index: 1;
+    position: relative;
+    
+    .wrapper {
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+    
+    .video-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% + 2px);
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+      z-index: 0;
+      
+      &.active {
+        opacity: 1;
+        z-index: 1;
+      }
+    }
+    
+    .video-player {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      object-position: var(--object-position-mobile);
+      object-fit: cover;
+
+    }
+
+    .heading {
+      position: absolute;
+      bottom: 100px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      z-index: 2;
+      font-size: 2.1rem;
+      font-style: italic;
+
+      span {
+        opacity: 0;
+        
+        animation: appear 1000ms ease-out infinite alternate;
+      }
+
+      span:nth-of-type(1) {
+        animation-delay: 100ms;
+      }
+      span:nth-of-type(2) {
+        animation-delay: 300ms;
+      }      
+      span:nth-of-type(3) {
+        animation-delay: 500ms;
+      }
+
+    }
+  }
+
+  .video-carousel.sect > .wrapper::after {
+    content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+
+
+      background: #ffffff;
+      background: radial-gradient(circle,rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 1) 100%);
+      z-index: 2;
+  }
+
+  @keyframes appear {
+    to {
+      opacity: 1
+    }
+  }
+  
+  @media screen and (min-width: 992px) {
+    .video-carousel.sect {
+      .video-player {
+        object-position: var(--object-position);
+      }
+    }
+    
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Bestsellers",
+  "class": "bestsellers sect",
+  "tag": "section",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "range",
+      "id": "column_count",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Number of columns",
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "product_source",
+      "label": "Product source",
+      "options": [
+        {
+          "value": "bestsellers",
+          "label": "Automated bestsellers"
+        },
+        {
+          "value": "latest",
+          "label": "Latest products"
+        },
+        {
+          "value": "manual",
+          "label": "Manually selected"
+        }
+      ],
+      "default": "bestsellers"
+    },
+    {
+      "type": "range",
+      "id": "product_count",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "label": "Number of products to show",
+      "default": 3,
+      "info": "Only works with automated bestsellers or latest products"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Product",
+      "type": "product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bestsellers",
+      "category": "Products"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["index"]
+  }
+}
+{% endschema %}

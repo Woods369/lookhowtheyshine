@@ -1,6 +1,6 @@
 # Ignore built assets and dependencies
 assets/*
-!assets/.keep        # Empty file to preserve directory
+!assets/.keep
 frontend/node_modules
 frontend/dist
 
@@ -11,3 +11,5 @@ frontend/dist
 # Ignore deployment artifacts
 theme.zip
 .env
+
+config.yml

@@ -1,0 +1,188 @@
+<h1 class="absolute w-px h-px p-0 -m-px overflow-hidden clip-[rect(0,0,0,0)] whitespace-nowrap border-0">Look how they shine</h1>
+
+<div class="wrapper h-screen w-screen relative after:content-[''] after:absolute after:inset-0 after:bg-white after:bg-[radial-gradient(circle,rgba(255,255,255,0)_30%,rgba(0,0,0,1)_100%)] after:z-[2]">
+  {%- for block in section.blocks -%}
+    {%- if block.settings.video -%}
+      <div class="video-slide absolute top-0 left-0 w-full h-[calc(100%+2px)] opacity-0 transition-opacity duration-[1.5s] ease-in-out z-0 [&.active]:opacity-100 [&.active]:z-[1]{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+        <video 
+          class="video-player absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover object-[var(--object-position-mobile)] lg:object-[var(--object-position)]" 
+          style="--object-position-mobile: {{ block.settings.mobile-position }}%; --object-position: {{ block.settings.position }}%;"
+          {% if forloop.first %}autoplay{% endif %}
+          muted 
+          loop
+          playsinline
+          poster="{{ block.settings.thumbnail | image_url: width: 2000 }}"
+        >
+          {% assign video_url = block.settings.video.sources[1].url %}
+          {% comment %}theme-check-disable RemoteAsset{% endcomment %}
+          <source src="{{ video_url }}" type="video/mp4" fetchpriority="high">
+          Your browser doesn't support HTML5 video.
+        </video>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+
+{% javascript %}
+  document.addEventListener('DOMContentLoaded', () => {
+    const carousels = document.querySelectorAll('.video-carousel');
+    
+    carousels.forEach(carousel => {
+      const heading = carousel.querySelector('.heading');
+      const slides = carousel.querySelectorAll('.video-slide');
+
+      let currentIndex = 0;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === index);
+
+          const video = slide.querySelector('video');
+          if (video) {
+            if (i === index) {
+              video.currentTime = 0;
+              video.play().catch(e => console.log('Autoplay prevented:', e));
+            } else {
+              setTimeout(() => {
+                video.pause();
+              }, 750);
+            }
+          }
+
+        });
+        currentIndex = index;
+      }
+      
+      function nextSlide() {
+        const nextIndex = (currentIndex + 1) % slides.length;
+        showSlide(nextIndex);
+      }
+            
+      showSlide(0);
+      let autoplayInterval = setInterval(nextSlide, 4250);
+
+      const ellipsis = (input) => {
+        const text = typeof input === 'string' ? input : input.innerText;
+        if (typeof text !== 'string') {
+            return '';
+        }
+        let string = String(text);
+        let newString = string.replace(/\./g, '<span class="dot">.</span>');
+        input.classList.add('ellipsis');
+
+        return input.innerHTML = newString;
+      };
+
+      ellipsis(heading);
+  
+    });
+  });
+{% endjavascript %}
+
+{% schema %}
+  {
+    "name": "Video Carousel",
+    "class": "video-carousel sect full-width",
+    "tag": "section",
+    "limit": 1,
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading"
+      },
+      {
+        "type": "range",
+        "id": "slide_duration",
+        "min": 2,
+        "max": 10,
+        "step": 1,
+        "unit": "sec",
+        "label": "Slide duration",
+        "default": 5
+      },
+          {
+        "type": "range",
+        "id": "slide_transition",
+        "min": 100,
+        "max": 5000,
+        "step": 100,
+        "unit": "ms",
+        "label": "Slide duration",
+        "default": 300
+      }
+    ],
+    "max_blocks": 8,
+    "blocks": [
+      {
+        "name": "Slide",
+        "type": "slide",
+        "settings": [
+          {
+            "type": "video",
+            "id": "video",
+            "label": "Video",
+            "info": "MP4 format recommended."
+          },
+          {
+            "type": "image_picker",
+            "id": "thumbnail",
+            "label": "Fallback",
+            "info": "Shown while video loads"
+          },
+          {
+            "type": "text",
+            "id": "description",
+            "label": "Description ( for SEO )"
+          },
+          {
+            "type": "header",
+            "content": "Video positioning",
+            "info": "Align the video for both mobile and desktop."
+          },
+          {
+            "type": "range",
+            "id": "mobile-position",
+            "min": 0,
+            "max": 100,
+            "unit": "%",
+            "step": 1,
+            "label": "X Position",
+            "default": 50,
+            "info": "For Mobile Devices"
+
+          },
+          {
+            "type": "range",
+            "id": "position",
+            "min": 0,
+            "max": 100,
+            "unit": "%",
+            "step": 1,
+            "label": "X Position",
+            "default": 50,
+            "info": "For Desktop"
+
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Video Carousel",
+        "category": "Media",
+        "blocks": [
+          {
+            "type": "slide"
+          },
+          {
+            "type": "slide"
+          }
+        ]
+      }
+    ],
+    "enabled_on": {
+      "templates": ["index"]
+    }
+  }
+{% endschema %}

@@ -1,0 +1,63 @@
+<header class="">
+  {% comment %} <img src="{{ section.settings.header-logo | image_url: width: 500, height: 500  }}" alt=""> {% endcomment %}
+
+  {% if template == 'index' %} 
+    <a href="#">
+      <img src="{{ 'logo-white.svg' | asset_url }}" alt="Your Logo" width="100%" height="100%">
+    </a>
+
+  {% else %}
+    <a href="{{ routes.root_url }} }}">
+      <img src="{{ 'logo.svg' | asset_url }}" alt="Your Logo" width="100%" height="100%">
+    </a>
+  {% endif %}
+
+</header>
+
+{% style %}
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  header img {
+    width: {{ section.settings.logo-size }}px;
+    color: white;
+  }
+
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "t:general.header",
+    "settings": [
+      {
+        "type": "link_list",
+        "id": "menu",
+        "label": "t:labels.menu"
+
+      },
+      {
+        "type": "image_picker",
+        "id": "header-logo",
+        "label": "t:labels.header-logo"
+      },
+      {
+        "type": "range",
+        "min": 25,
+        "default": 50,
+        "unit": "px",
+        "step": 5,
+        "max": 250,
+        "id": "logo-size",
+        "label" : "t:labels.logo-size"
+      }
+    ]
+  }
+{% endschema %}

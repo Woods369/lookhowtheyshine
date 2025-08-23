@@ -1,0 +1,33 @@
+<footer class="flex justify-between pt-8 bg-black">
+  
+  <div class="footer__payment flex gap-4">
+    {% if section.settings.show_payment_icons %}
+      {% for type in shop.enabled_payment_types %}
+        {{ type | payment_type_svg_tag }}
+      {% endfor %}
+    {% endif %}
+  </div>
+</footer>
+
+
+{% schema %}
+  {
+    "name": "t:general.footer",
+    "class": "footer sect full-width",
+    "tag": "footer",
+    "limit": 1,
+    "settings": [
+      {
+        "type": "link_list",
+        "id": "menu",
+        "label": "t:labels.menu"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_payment_icons",
+        "label": "t:labels.show_payment_icons",
+        "default": true
+      }
+    ]
+  }
+{% endschema %}
