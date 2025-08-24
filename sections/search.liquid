@@ -46,7 +46,8 @@
         {{ paginate | default_pagination }}
       {% endpaginate %}
     </div>
-{% endstylesheet %}
+  {% endif %}
+{% endif %}
 
 {% schema %}
 {
