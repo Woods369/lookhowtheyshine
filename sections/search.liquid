@@ -24,14 +24,16 @@
   {% else %}
     <p>{{ 'search.results_for_html' | t: terms: search.terms, count: search.results_count }}</p>
 
-      {% paginate search.results by 20 %}
-    <div class="search-results grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] [&_.prev]:col-span-full [&_.page]:col-span-full [&_.next]:col-span-full">
+    {% paginate search.results by 20 %}
+      <div class="search-results grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] [&_.prev]:col-span-full [&_.page]:col-span-full [&_.next]:col-span-full">
         {% for result in search.results %}
           <div class="search-result">
             {% assign featured_image = result.featured_image | default: result.image %}
+
             {% if featured_image %}
               {% render 'image', class: 'search-result__image', image: featured_image, url: result.url, width: 400 %}
             {% endif %}
+
             <div class="search-result__content">
               <p>
                 {{ result.title | link_to: result.url }}
@@ -40,12 +42,15 @@
                 {% endif %}
               </p>
             </div>
+
           </div>
         {% endfor %}
+      </div>
 
-        {{ paginate | default_pagination }}
-      {% endpaginate %}
-    </div>
+      {{ paginate | default_pagination }}
+      
+    {% endpaginate %}
+
   {% endif %}
 {% endif %}
 

@@ -4,8 +4,11 @@
     {% # Inlined CSS Variables %}
     {% render 'css-variables' %}
 
-
     {% # Load Tailwind CSS %}
+    {% comment %} Use CDN for development to get all utilities {% endcomment %}
+    {% if request.host contains "myshopify.com" or request.host contains "127.0.0.1" %}
+      <script src="https://cdn.tailwindcss.com"></script>
+    {% endif %}
     {{ 'tailwind-output.css' | asset_url | stylesheet_tag }}
 
     {% # Social, title, etc. %}
@@ -17,15 +20,26 @@
 
 
     {{ content_for_header }}
+
+    {% # Critical CSS %}
+    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
   </head>
 
   <body>
-    {% sections 'header-group' %}
 
-    {{ content_for_layout }}
 
-    {% sections 'footer-group' %}
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        {{ content_for_layout }}
+        {% sections 'footer-group' %}
+      </div>
+    </div>
+
+        {% sections 'header-group' %}
+
     <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
     <script async src="{{ 'ScrollTrigger.min.js' | asset_url }}"></script>
+    <script async src="{{ 'ScrollSmoother.min.js' | asset_url }}"></script>
+    <script async src="{{ 'app.js' | asset_url }}"></script>
   </body>
 </html>

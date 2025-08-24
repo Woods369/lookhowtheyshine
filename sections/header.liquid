@@ -1,34 +1,11 @@
-<header class="">
-  {% comment %} <img src="{{ section.settings.header-logo | image_url: width: 500, height: 500  }}" alt=""> {% endcomment %}
-
-  {% if template == 'index' %} 
-    <a href="#">
-      <img src="{{ 'logo-white.svg' | asset_url }}" alt="Your Logo" width="100%" height="100%">
-    </a>
-
-  {% else %}
-    <a href="{{ routes.root_url }} }}">
-      <img src="{{ 'logo.svg' | asset_url }}" alt="Your Logo" width="100%" height="100%">
-    </a>
-  {% endif %}
-
-</header>
+<a href="{{ routes.root_url }}" class="w-full flex justify-center items-center">
+    <img src="{{ 'logo.webp' | asset_url }}" alt="Your Logo" width="100%" height="100%">
+</a>
 
 {% style %}
-  header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
   
   header img {
     width: {{ section.settings.logo-size }}px;
-    color: white;
   }
 
 {% endstyle %}
@@ -36,6 +13,8 @@
 {% schema %}
   {
     "name": "t:general.header",
+    "tag": "header",
+    "class": "fixed top-0 z-2 w-full grid items-center my-5",
     "settings": [
       {
         "type": "link_list",

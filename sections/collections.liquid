@@ -7,8 +7,7 @@
 
 <h1>{{ 'collections.title' | t }}</h1>
 
-<div
-  class="collections grid gap-[--grid-gap] {% if section.settings.grid_item_width == 'collections--compact' %}grid-cols-[repeat(auto-fill,_minmax(min(160px,_100%),_1fr))]{% else %}grid-cols-[repeat(auto-fill,_minmax(min(280px,_100%),_1fr))]{% endif %}"
+<div class="collections p-6 grid gap-[--grid-gap] {% if section.settings.grid_item_width == 'collections--compact' %}grid-cols-[repeat(auto-fill,_minmax(min(160px,_100%),_1fr))]{% else %}grid-cols-[repeat(auto-fill,_minmax(min(280px,_100%),_1fr))]{% endif %}"
   style="--grid-gap: {{ section.settings.grid_gap }}px"
 >
   {% for collection in collections %}
@@ -36,6 +35,8 @@
 {% schema %}
 {
   "name": "t:general.collections_grid",
+  "tag": "section",
+  "class": "mt-50",
   "settings": [
     {
       "type": "select",

@@ -1,11 +1,11 @@
-<h1 class="absolute w-px h-px p-0 -m-px overflow-hidden clip-[rect(0,0,0,0)] whitespace-nowrap border-0">Look how they shine</h1>
+<h1 class="absolute w-px h-px p-0 top-[0px] -m-px overflow-hidden clip-[rect(0,0,0,0)] whitespace-nowrap border-0">Look how they shine</h1>
 
-<div class="wrapper h-screen w-screen relative after:content-[''] after:absolute after:inset-0 after:bg-white after:bg-[radial-gradient(circle,rgba(255,255,255,0)_30%,rgba(0,0,0,1)_100%)] after:z-[2]">
+<div class="wrapper h-screen w-screen relative" >
   {%- for block in section.blocks -%}
     {%- if block.settings.video -%}
-      <div class="video-slide absolute top-0 left-0 w-full h-[calc(100%+2px)] opacity-0 transition-opacity duration-[1.5s] ease-in-out z-0 [&.active]:opacity-100 [&.active]:z-[1]{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+      <div class="video-slide absolute top-0 left-0 w-full h-screen opacity-0 transition-opacity duration-[1.5s] ease-in-out z-0 [&.active]:opacity-100 [&.active]:z-[1]{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
         <video 
-          class="video-player absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover object-[var(--object-position-mobile)] lg:object-[var(--object-position)]" 
+          class="video-player absolute min-h-full w-auto h-auto object-cover object-[var(--object-position-mobile)] lg:object-[var(--object-position)]" 
           style="--object-position-mobile: {{ block.settings.mobile-position }}%; --object-position: {{ block.settings.position }}%;"
           {% if forloop.first %}autoplay{% endif %}
           muted 
@@ -110,6 +110,16 @@
         "unit": "ms",
         "label": "Slide duration",
         "default": 300
+      },
+      {
+        "type": "range",
+        "id": "parallax_speed",
+        "min": 0,
+        "max": 2,
+        "step": 0.1,
+        "label": "Parallax Speed",
+        "default": 0.8,
+        "info": "0 = Static, 1 = Normal, 2 = Fast parallax"
       }
     ],
     "max_blocks": 8,
