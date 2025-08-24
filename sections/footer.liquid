@@ -1,19 +1,33 @@
-<footer class="flex justify-between pt-8 bg-black">
+<div class="footer-content h-48 flex flex-col justify-center items-center text-center">
+  <h3 class="text-2xl font-bold mb-4">Look How They Shine</h3>
   
-  <div class="footer__payment flex gap-4">
+  <nav class="footer-nav mb-6">
+    {% if section.settings.menu != blank %}
+      <ul class="flex space-x-6">
+        {% for link in linklists[section.settings.menu].links %}
+          <li><a href="{{ link.url }}" class="hover:text-gray-300 transition-colors">{{ link.title }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </nav>
+  
+  <div class="footer__payment">
     {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
+      <div class="flex space-x-2 mb-4">
+        {% for type in shop.enabled_payment_types %}
+          {{ type | payment_type_svg_tag: class: 'h-6 w-10 fill-current' }}
+        {% endfor %}
+      </div>
     {% endif %}
   </div>
-</footer>
-
+  
+  <p class="text-sm text-gray-400">© {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+</div>
 
 {% schema %}
   {
     "name": "t:general.footer",
-    "class": "footer sect full-width",
+    "class": "footer sticky bottom-0 left-0 right-0 text-white z-10",
     "tag": "footer",
     "limit": 1,
     "settings": [

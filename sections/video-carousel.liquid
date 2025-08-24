@@ -61,20 +61,6 @@
       showSlide(0);
       let autoplayInterval = setInterval(nextSlide, 4250);
 
-      const ellipsis = (input) => {
-        const text = typeof input === 'string' ? input : input.innerText;
-        if (typeof text !== 'string') {
-            return '';
-        }
-        let string = String(text);
-        let newString = string.replace(/\./g, '<span class="dot">.</span>');
-        input.classList.add('ellipsis');
-
-        return input.innerHTML = newString;
-      };
-
-      ellipsis(heading);
-  
     });
   });
 {% endjavascript %}
@@ -82,7 +68,7 @@
 {% schema %}
   {
     "name": "Video Carousel",
-    "class": "video-carousel sect full-width",
+    "class": "video-carousel w-full h-screen relative overflow-hidden",
     "tag": "section",
     "limit": 1,
     "settings": [

@@ -18,28 +18,38 @@
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {% endif %}
 
-
     {{ content_for_header }}
+
+    {% comment %} Main JS - loads after HTML parsing but before DOMContentLoaded {% endcomment %}
+    <script defer src="{{ 'main.js' | asset_url }}"></script>
 
     {% # Critical CSS %}
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
+    
+    <style>
+      /* Reveal Footer Effect */
+      body {
+        padding-bottom: 200px; /* Adjust based on footer height */
+      }
+      
+      .main-content {
+        background: white;
+        position: relative;
+        z-index: 20;
+        min-height: 100vh;
+      }
+    </style>
   </head>
 
   <body>
-
-
-    <div id="smooth-wrapper">
-      <div id="smooth-content">
-        {{ content_for_layout }}
-        {% sections 'footer-group' %}
-      </div>
+    <div class="main-content">
+      {% sections 'header-group' %}
+      {{ content_for_layout }}
     </div>
-
-        {% sections 'header-group' %}
+    
+    {% sections 'footer-group' %}
 
     <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
     <script async src="{{ 'ScrollTrigger.min.js' | asset_url }}"></script>
-    <script async src="{{ 'ScrollSmoother.min.js' | asset_url }}"></script>
-    <script async src="{{ 'app.js' | asset_url }}"></script>
   </body>
 </html>

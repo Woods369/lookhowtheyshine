@@ -1,64 +1,167 @@
 {% comment %}
   This section is used in the list-collections template to render a list of
-  collections.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
+  collections with an interactive sidebar and preview area.
 {% endcomment %}
 
-<h1>{{ 'collections.title' | t }}</h1>
+<div class="collections-container p-6 flex gap-8 min-h-screen">
+  
+  <!-- Collections Sidebar -->
+  <div class="collects-side w-1/3">
+    <h1 class="text-3xl mb-6">{{ 'collections.title' | t }}</h1>
+    
+    <nav class="collections-nav space-y-1">
+      {% for collection in collections %}
+        {% unless collection.handle == 'frontpage' %}
+          <button 
+            class="collection-nav-item w-full text-left p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-l-4 border-transparent hover:border-black"
+            data-collection-handle="{{ collection.handle }}"
+            data-collection-title="{{ collection.title | escape }}"
+            data-collection-id="{{ collection.id }}"
+          >
+            <h3 class="text-lg">{{ collection.title }}</h3>
+          </button>
+        {% endunless %}
+      {% endfor %}
+    </nav>
+  </div>
 
-<div class="collections p-6 grid gap-[--grid-gap] {% if section.settings.grid_item_width == 'collections--compact' %}grid-cols-[repeat(auto-fill,_minmax(min(160px,_100%),_1fr))]{% else %}grid-cols-[repeat(auto-fill,_minmax(min(280px,_100%),_1fr))]{% endif %}"
-  style="--grid-gap: {{ section.settings.grid_gap }}px"
->
-  {% for collection in collections %}
-    <a class="collection-card flex flex-col w-full" href="{{ collection.url }}">
-      {% if collection.featured_image %}
-        {% render 'image',
-          class: 'collection-card__image',
-          image: collection.featured_image,
-          width: 600,
-          height: 600,
-          crop: 'center'
-        %}
-      {% endif %}
-
-      <div class="collection-card__content">
-        <p>{{ collection.title }}</p>
-
-        {% if collection.description %}
-          <p>{{ collection.description | strip_html | truncatewords: 15 }}</p>
-        {% endif %}
+  <!-- Collections Preview -->
+  <div class="collections-preview w-2/3">
+    
+    <!-- Default State -->
+    <div class="preview-default text-center py-20">
+      <div class="max-w-md mx-auto">
+        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <h2 class="text-2xl font-bold text-gray-700 mb-2">Select a Collection</h2>
+        <p class="text-gray-500">Click on any collection name to see products</p>
       </div>
-    </a>
-  {% endfor %}
+    </div>
+
+    <!-- Loading State -->
+    <div class="preview-loading hidden text-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+      <p class="text-gray-600">Loading products...</p>
+    </div>
+
+    <!-- Preview Content -->
+    <div class="preview-content hidden">
+      <div class="collection-header mb-6">
+        <h2 class="collection-title text-3xl font-bold mb-2"></h2>
+        <p class="collection-count text-gray-600 mb-4"></p>
+      </div>
+
+      <!-- Products Grid (2x2) -->
+      <div class="products-grid grid grid-cols-2 gap-6 mb-6">
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const navItems = document.querySelectorAll('.collection-nav-item');
+  const previewDefault = document.querySelector('.preview-default');
+  const previewLoading = document.querySelector('.preview-loading');
+  const previewContent = document.querySelector('.preview-content');
+  const productsGrid = document.querySelector('.products-grid');
+  
+  navItems.forEach(item => {
+    item.addEventListener('click', async function() {
+      // Remove active state from all items
+      navItems.forEach(nav => {
+        nav.classList.remove('border-black', 'bg-gray-100');
+      });
+      
+      // Add active state to clicked item
+      this.classList.add('border-black', 'bg-gray-100');
+      
+      // Get collection data
+      const handle = this.dataset.collectionHandle;
+      const title = this.dataset.collectionTitle;
+      
+      // Show loading
+      previewDefault.classList.add('hidden');
+      previewContent.classList.add('hidden');
+      previewLoading.classList.remove('hidden');
+      
+      try {
+        // Fetch products from collection
+        const response = await fetch(`/collections/${handle}/products.json?limit=4`);
+        const data = await response.json();
+      
+        
+        // Clear and populate grid
+        productsGrid.innerHTML = '';
+        
+        data.products.slice(0, 2).forEach(product => {
+          const productCard = createProductCard(product);
+          productsGrid.appendChild(productCard);
+        });
+
+                // Update header
+        document.querySelector('.collection-title').textContent = title;
+        document.querySelector('.view-collection').href = `/collections/${handle}`;
+        
+        // Show content
+        previewLoading.classList.add('hidden');
+        previewContent.classList.remove('hidden');
+
+        
+      } catch (error) {
+        console.error('Error loading collection:', error);
+        previewLoading.classList.add('hidden');
+        previewDefault.classList.remove('hidden');
+      }
+    });
+  });
+  
+  function createProductCard(product) {
+    const card = document.createElement('div');
+    card.className = 'product-card group';
+    
+    const imageUrl = product.featured_image ? 
+      product.featured_image.replace(/(\.[^\.]*$)/, '_400x400$1') : 
+      'https://via.placeholder.com/400x400/f8f9fa/6c757d?text=No+Image';
+    
+    card.innerHTML = `
+      <a href="/products/${product.handle}" class="block">
+        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
+          <img 
+            src="${imageUrl}" 
+            alt="${product.title}"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+        <h3 class="font-medium font-italic text-lg group-hover:text-gray-600 transition-colors">${product.title}</h3>
+
+        <!-- View Collection Button -->
+        <div class="text-center">
+          <a href="#" class="view-collection bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors inline-block">
+            View Full Collection →
+          </a>
+        </div>
+      </a>
+    `;
+    
+    return card;
+  }
+});
+</script>
+
 {% schema %}
 {
-  "name": "t:general.collections_grid",
-  "tag": "section",
-  "class": "mt-50",
+  "name": "Collections Browser",
+  "tag": "section", 
+  "class": "my-8 mx-4 z-1",
   "settings": [
     {
-      "type": "select",
-      "id": "grid_item_width",
-      "label": "t:labels.grid_item_width",
-      "options": [
-        { "value": "collections--compact", "label": "t:options.size.small" },
-        { "value": "collections--full", "label": "t:options.size.large" }
-      ],
-      "default": "collections--full"
-    },
-    {
-      "type": "range",
-      "id": "grid_gap",
-      "label": "t:labels.grid_gap",
-      "min": 0,
-      "max": 50,
-      "step": 5,
-      "unit": "px",
-      "default": 10
+      "type": "header",
+      "content": "Collections Browser Settings"
     }
   ],
-  "presets": [{ "name": "t:general.collections_grid" }]
+  "presets": [{ "name": "Collections Browser" }]
 }
 {% endschema %}
