@@ -29,11 +29,30 @@
       "settings": {
         "heading": "",
         "slide_duration": 5,
-        "slide_transition": 300
+        "slide_transition": 300,
+        "parallax_speed": 0.8
       }
+    },
+    "newsletter_nqKmeU": {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "settings": {
+        "heading": "Stay in the Loop",
+        "subheading": "Be the first to know about new arrivals and exclusive offers",
+        "button_text": "Subscribe",
+        "success_message": "Thank you for subscribing!",
+        "parallax_speed": 1.2
+      }
+    },
+    "collections_yGHzAH": {
+      "type": "collections",
+      "name": "Collections Browser",
+      "settings": {}
     }
   },
   "order": [
-    "video-carousel"
+    "video-carousel",
+    "collections_yGHzAH",
+    "newsletter_nqKmeU"
   ]
 }
