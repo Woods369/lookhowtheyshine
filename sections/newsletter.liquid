@@ -1,0 +1,78 @@
+<div class="newsletter" data-speed="{{ section.settings.parallax_speed | default: 1.2 }}">
+  <div class="page-width">
+    <div class="text-center">
+      {% if section.settings.heading %}
+        <h2 class="text-3xl lg:text-4xl font-bold mb-4">{{ section.settings.heading }}</h2>
+      {% endif %}
+      {% if section.settings.subheading %}
+        <p class="text-lg text-gray-600 mb-8">{{ section.settings.subheading }}</p>
+      {% endif %}
+      
+      {% form "customer" %}
+        <div class="max-w-md mx-auto">
+          <div class="flex gap-2">
+            <input type="email" name="contact[email]" placeholder="Enter your email" required 
+                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <button type="submit" class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+              {{ section.settings.button_text | default: "Subscribe" }}
+            </button>
+          </div>
+        </div>
+        
+        {% if form.posted_successfully? %}
+          <div class="mt-4 text-green-600">{{ section.settings.success_message | default: "Thank you for subscribing!" }}</div>
+        {% endif %}
+        
+        {% if form.errors %}
+          <div class="mt-4 text-red-600">
+            {% for field in form.errors %}
+              {{ form.errors[field] | first }}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endform %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Stay in the Loop"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Be the first to know about new arrivals and exclusive offers"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thank you for subscribing!"
+    },
+    {
+      "type": "range",
+      "id": "parallax_speed",
+      "min": 0.1,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2,
+      "label": "Parallax speed"
+    }
+  ],
+  "presets": [{"name": "Newsletter"}]
+}
+{% endschema %}

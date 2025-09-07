@@ -7,7 +7,7 @@
     {% # Load Tailwind CSS %}
     {% comment %} Use CDN for development to get all utilities {% endcomment %}
     {% if request.host contains "myshopify.com" or request.host contains "127.0.0.1" %}
-      <script src="https://cdn.tailwindcss.com"></script>
+      <script defer src="https://cdn.tailwindcss.com"></script>
     {% endif %}
     {{ 'tailwind-output.css' | asset_url | stylesheet_tag }}
 

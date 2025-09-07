@@ -6,7 +6,7 @@ media, content, and add-to-cart form.
 <div class="product mx-8 max-w-[750px] lg:mx-auto sm:mt-8 mt-[6rem] grid [grid-template-areas:'info'_'gallery'_'form']">
   <div class="product-info flex flex-col [grid-area:info]">
     <h1 class="text-lg">{{ product.title }}</h1>
-    <p>{{ product.price | money }}</p>
+    <p class="js-price">{{ product.price | money }}</p>
     <p class="text-md">{{ product.description }}</p>
   </div>
 
@@ -32,12 +32,15 @@ media, content, and add-to-cart form.
   <div class="product-form grid grid-flow-col gap-4 auto-cols-fr [grid-area:form]">
     {% form 'product', product, class: "grid gap-[10px]" %}
       {% assign current_variant = product.selected_or_first_available_variant %}
+      
+      <!-- CRITICAL: Variant ID input - name must be "id" for Shopify add-to-cart -->
+      <input type="hidden" name="id" value="{{ current_variant.id }}" class="js-variant-id">
 
       <div class="form-group relative border-none w-full text-center mb-[10px] after:content-[''] after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXNxdWFyZS1jaGV2cm9uLWRvd24taWNvbiBsdWNpZGUtc3F1YXJlLWNoZXZyb24tZG93biI+PHJlY3Qgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB4PSIzIiB5PSIzIiByeD0iMiIvPjxwYXRoIGQ9Im0xNiAxMC00IDQtNC00Ii8+PC9zdmc+')] after:bg-center after:absolute after:opacity-50 after:right-[25px] after:top-[calc(50%+12.5px)] after:-translate-y-1/2 after:pointer-events-none after:w-[25px] after:aspect-square">
         <label for="variants" class="block mb-[5px] text-[#aaa] italic text-left">Please select</label>
-        <select id="variants" name="variants" class="appearance-none text-xl border-none w-full bg-transparent px-[25px] py-[10px] bg-[color-mix(in_srgb,#f0f0f0,#ffffff)]">
+        <select id="variants" name="variants" class="js-variant-selector appearance-none text-xl border-none w-full bg-transparent px-[25px] py-[10px] bg-[color-mix(in_srgb,#f0f0f0,#ffffff)]">
           {% for variant in product.variants %}
-          <option value="{{ variant.id }}" {% if variant==current_variant %} selected="selected" {% endif %}>
+          <option value="{{ variant.id }}" {% if variant==current_variant %} selected="selected" {% endif %} data-variant-id="{{ variant.id }}" data-price="{{ variant.price }}" data-available="{{ variant.available }}">
             {{ variant.title }} - {{ variant.price | money }}
           </option>
           {% endfor %}
@@ -51,8 +54,13 @@ media, content, and add-to-cart form.
           class="appearance-none outline-none border-none bg-[color-mix(in_srgb,#f0f0f0,#ffffff)] p-[10px] text-base">
       </div>
 
-      <input type="submit" value="Add to cart" 
-        class="bg-[color-mix(in_srgb,green_75%,transparent)] text-white p-[15px] text-base cursor-pointer border-none transition-opacity duration-300 ease-in-out hover:opacity-90">
+      <button type="submit" class="js-add-to-cart bg-[color-mix(in_srgb,green_75%,transparent)] text-white p-[15px] text-base cursor-pointer border-none transition-opacity duration-300 ease-in-out hover:opacity-90 {% unless current_variant.available %}opacity-50 cursor-not-allowed{% endunless %}" {% unless current_variant.available %}disabled{% endunless %}>
+        {% if current_variant.available %}
+          Add to cart
+        {% else %}
+          Sold out
+        {% endif %}
+      </button>
       {{ form | payment_button }}
     {% endform %}
   </div>
@@ -62,25 +70,82 @@ media, content, and add-to-cart form.
   document.addEventListener('DOMContentLoaded', function() {
     const thumbnailWrappers = document.querySelectorAll('.thumbnail-wrapper');
     const activeImage = document.querySelector('.active-image img');
+    const variantSelector = document.querySelector('.js-variant-selector');
+    const hiddenVariantInput = document.querySelector('.js-variant-id');
+    const addToCartButton = document.querySelector('.js-add-to-cart');
+    const priceElement = document.querySelector('.js-price');
 
+    // Handle thumbnail clicks
     thumbnailWrappers.forEach(wrapper => {
-    wrapper.addEventListener('click', function() {
-    const highResSrc = this.dataset.highresSrc;
+      wrapper.addEventListener('click', function() {
+        const highResSrc = this.dataset.highresSrc;
 
-    // Update active image
-    activeImage.src = highResSrc;
-    activeImage.srcset = ''; // Clear srcset to prevent conflicts
-    activeImage.alt = this.querySelector('img').alt;
+        // Update active image
+        activeImage.src = highResSrc;
+        activeImage.srcset = ''; // Clear srcset to prevent conflicts
+        activeImage.alt = this.querySelector('img').alt;
 
-    // Update active thumbnail class
-    thumbnailWrappers.forEach(w => {
-      w.classList.remove('active-thumbnail');
-      w.classList.add('grayscale-[0.7]');
+        // Update active thumbnail class
+        thumbnailWrappers.forEach(w => {
+          w.classList.remove('active-thumbnail');
+          w.classList.add('grayscale-[0.7]');
+        });
+        this.classList.add('active-thumbnail');
+        this.classList.remove('grayscale-[0.7]');
+      });
     });
-    this.classList.add('active-thumbnail');
-    this.classList.remove('grayscale-[0.7]');
-    });
-    });
+
+    // Handle variant selection changes
+    if (variantSelector && hiddenVariantInput) {
+      variantSelector.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const variantId = selectedOption.dataset.variantId;
+        const variantPrice = selectedOption.dataset.price;
+        const isAvailable = selectedOption.dataset.available === 'true';
+        
+        // Update hidden input with selected variant ID
+        hiddenVariantInput.value = variantId;
+        
+        // Update price display
+        if (priceElement && variantPrice) {
+          priceElement.textContent = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          }).format(variantPrice / 100);
+        }
+        
+        // Update add to cart button
+        if (addToCartButton) {
+          if (isAvailable) {
+            addToCartButton.disabled = false;
+            addToCartButton.textContent = 'Add to cart';
+            addToCartButton.classList.remove('opacity-50', 'cursor-not-allowed');
+          } else {
+            addToCartButton.disabled = true;
+            addToCartButton.textContent = 'Sold out';
+            addToCartButton.classList.add('opacity-50', 'cursor-not-allowed');
+          }
+        }
+      });
+    }
+
+    // Handle add to cart form submission
+    const productForm = document.querySelector('[action*="/cart/add"]');
+    if (productForm) {
+      productForm.addEventListener('submit', function(e) {
+        const submitButton = this.querySelector('[type="submit"]');
+        if (submitButton && !submitButton.disabled) {
+          submitButton.textContent = 'Adding...';
+          submitButton.disabled = true;
+          
+          // Re-enable after 3 seconds in case of issues
+          setTimeout(() => {
+            submitButton.textContent = 'Add to cart';
+            submitButton.disabled = false;
+          }, 3000);
+        }
+      });
+    }
   });
 {% endjavascript %}
 

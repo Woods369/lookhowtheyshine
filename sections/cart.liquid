@@ -1,33 +1,72 @@
 {% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
+  Fixed cart section with proper checkout functionality
 {% endcomment %}
 
-<h1>{{ 'cart.title' | t }}</h1>
+<div class="cart-section">
+  <h1>Your {{ 'cart.title' | t }}</h1>
 
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          {% render 'image', image: item.image, url: item.url %}
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+  {% if cart.item_count == 0 %}
+    <div class="cart-empty">
+      <p>{{ 'cart.empty' | t }}</p>
+      <a href="{{ routes.root_url }}" class="button">{{ 'cart.continue_shopping' | t }}</a>
+    </div>
+  {% else %}
+    <form action="{{ routes.cart_url }}" method="post" novalidate>
+      
+      <table class="cart-table">
+        {% for item in cart.items %}
+          <tr class="cart-item">
+            <td class="cart-item-product">
+              {% if item.image %}
+                <img src="{{ item.image | image_url: width: 100, height: 100 }}" alt="{{ item.image.alt | escape }}" width="100" height="100">
+              {% endif %}
+              <div>
+                <h3><a href="{{ item.url }}">{{ item.product.title }}</a></h3>
+                {% if item.variant.title != 'Default Title' %}
+                  <p>{{ item.variant.title }}</p>
+                {% endif %}
+                <p>{{ item.price | money }}</p>
+              </div>
+            </td>
+            
+            <td class="cart-item-quantity">
+              <label for="updates_{{ item.variant.id }}">Quantity:</label>
+              <input 
+                type="number" 
+                name="updates[{{ item.variant.id }}]" 
+                id="updates_{{ item.variant.id }}"
+                value="{{ item.quantity }}" 
+                min="0" 
+              >
+            </td>
+            
+            <td class="cart-item-total">
+              {{ item.line_price | money }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
 
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
+      <div class="cart-footer">
+        <p><strong>Subtotal: {{ cart.total_price | money }}</strong></p>
+        
+        <div class="cart-actions">
+          <button type="submit" name="update">Update Cart</button>
+          <a href="/checkout" class="checkout-button bg-[color-mix(in_srgb,green_75%,transparent)] text-white p-[15px] text-base cursor-pointer border-none transition-opacity duration-300 ease-in-out hover:opacity-90">Checkout</a>
+        </div>
+      </div>
+    </form>
+  {% endif %}
+</div>
+
+{% style %}
+  .cart-section {
+    margin: 100px 0 0 0;
+    display: grid;
+    place-items: center;
+    width: 100%;
+  }
+{% endstyle %}
 
 {% schema %}
 {

@@ -17,9 +17,7 @@
     "checkout": "Checkout",
     "title": "Cart",
     "update": "Update",
-    "remove": "Remove",
-    "empty": "Your cart is currently empty.",
-    "continue_shopping": "Continue shopping"
+    "remove": "Remove"
   },
   "customers": {
     "login": {
