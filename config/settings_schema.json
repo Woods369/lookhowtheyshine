@@ -17,13 +17,13 @@
       {
         "type": "font_picker",
         "id": "type_heading_font",
-        "default": "work_sans_n4",
+        "default": "palatino_n4",
         "label": "t:general.heading_font"
       },
       {
         "type": "font_picker",
         "id" : "type_body_font",
-        "default": "work_sans_n4",
+        "default": "arsenal_n4",
         "label": "t:general.body_font"
       }
     ]

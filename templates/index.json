@@ -9,7 +9,34 @@
  */
 {
   "sections": {
+    "video_background_FBF7tQ": {
+      "type": "video-background",
+      "name": "Video Background",
+      "settings": {
+        "video": "shopify://files/videos/homepage video carousel.mp4",
+        "description": ""
+      }
+    },
+    "collections_yGHzAH": {
+      "type": "collections",
+      "name": "Collections Browser",
+      "settings": {}
+    },
+    "newsletter_nqKmeU": {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "settings": {
+        "heading": "Stay in the Loop",
+        "subheading": "Be the first to know about new arrivals and exclusive offers",
+        "button_text": "Subscribe",
+        "success_message": "Thank you for subscribing!",
+        "parallax_speed": 1.2
+      }
+    }
   },
   "order": [
+    "video_background_FBF7tQ",
+    "collections_yGHzAH",
+    "newsletter_nqKmeU"
   ]
 }
