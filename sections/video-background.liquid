@@ -1,0 +1,57 @@
+<h1 class="absolute w-px h-px p-0 top-[0px] -m-px overflow-hidden clip-[rect(0,0,0,0)] whitespace-nowrap border-0">Look how they shine</h1>
+
+{%- if section.settings.video -%}
+  <div class="video-wrapper sticky top-0 h-screen w-screen relative bg-black">
+    <video preload="metadata" 
+      class="video-player absolute inset-0 min-h-full w-full h-full object-cover" 
+      autoplay
+      muted 
+      loop
+      playsinline
+      poster="{{ section.settings.thumbnail | image_url: width: 2000 }}"
+    >
+      {% assign video_url = section.settings.video.sources[1].url %}
+      {% comment %}theme-check-disable RemoteAsset{% endcomment %}
+      <source src="{{ video_url }}" type="video/mp4" fetchpriority="high">
+      Your browser doesn't support HTML5 video.
+    </video>
+  </div>
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Video Background",
+    "class": "video-section w-full h-screen sticky top-0 overflow-hidden z-0",
+    "tag": "section",
+    "limit": 1,
+    "settings": [
+      {
+        "type": "video",
+        "id": "video",
+        "label": "Background Video",
+        "info": "MP4 format recommended for best performance."
+      },
+      {
+        "type": "image_picker",
+        "id": "thumbnail",
+        "label": "Video Poster/Fallback Image",
+        "info": "Shown while video loads or if video fails to load"
+      },
+      {
+        "type": "text",
+        "id": "description",
+        "label": "Video Description",
+        "info": "For accessibility and SEO purposes"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Video Background",
+        "category": "Media"
+      }
+    ],
+    "enabled_on": {
+      "templates": ["index"]
+    }
+  }
+{% endschema %}

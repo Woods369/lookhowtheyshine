@@ -5,18 +5,13 @@
     {% render 'css-variables' %}
 
     {% # Load Tailwind CSS %}
-    {% comment %} Use CDN for development to get all utilities {% endcomment %}
-    {% if request.host contains "myshopify.com" or request.host contains "127.0.0.1" %}
-      <script defer src="https://cdn.tailwindcss.com"></script>
-    {% endif %}
-    {{ 'tailwind-output.css' | asset_url | stylesheet_tag }}
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
 
-    {% if settings.favicon != blank %}
-      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
-    {% endif %}
+      {% if settings.favicon %}<link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">{% endif %}
+
 
     {{ content_for_header }}
 
@@ -27,9 +22,8 @@
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
     
     <style>
-      /* Reveal Footer Effect */
       body {
-        padding-bottom: 200px; /* Adjust based on footer height */
+        padding-bottom: 200px;
       }
       
       .main-content {
@@ -37,6 +31,16 @@
         position: relative;
         z-index: 20;
         min-height: 100vh;
+      }
+      
+      /* section {
+        max-width: 1550px;
+        margin-left: auto;
+        margin-right: auto;
+      } */
+
+      a {
+        font-size: inherit;
       }
     </style>
   </head>
@@ -50,6 +54,5 @@
     {% sections 'footer-group' %}
 
     <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
-    <script async src="{{ 'ScrollTrigger.min.js' | asset_url }}"></script>
   </body>
 </html>

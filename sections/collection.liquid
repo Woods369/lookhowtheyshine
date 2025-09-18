@@ -5,27 +5,29 @@
   https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
 {% endcomment %}
 
-<h1>{{ collection.title }}</h1>
+<div class="mt-[100px] mb-60 flex flex-wrap justify-between w-full items-center">
+<h1 class="text-6xl">{{ collection.title }} <em class="text-slate-500 font-thin">Collection </em></h1>
+<a class="underline underline-offset-[3px]" href="{{ routes.collections_url }}"><em class="text-slate-500 font-thin">Back to </em>Collections</a>
+</div>
 
-<div class="collection-products grid grid-cols-[repeat(auto-fill,_minmax(500px,_1fr))]">
+<div class="collection-products grid mx-20 gap-20 grid-cols-[repeat(auto-fill,_minmax(400px,_1fr))]">
   {% paginate collection.products by 20 %}
     {% for product in collection.products %}
-      <div class="collection-product">
+      <a href="{{ product.url }}" class="collection-product">
         {% if product.featured_image %}
           {% render 'image',
             class: 'collection-product__image',
             image: product.featured_image,
-            url: product.url,
             width: 400,
             height: 400,
             crop: 'center'
           %}
         {% endif %}
-        <div class="collection-product__content">
-          <p>{{ product.title | escape | link_to: product.url }}</p>
-          <p>{{ product.price | money }}</p>
+        <div class="flex flex-wrap justify-between items-center w-full">
+          <p class="text-4xl">{{ product.title | escape }} </p>
+          <p class="text-4x1">{{ product.price | money }}</p>
         </div>
-      </div>
+      </a>
     {% endfor %}
 
     {{ paginate | default_pagination }}
@@ -36,6 +38,8 @@
 {% schema %}
 {
   "name": "t:general.collection",
+  "tag": "section",
+  "class": "mx-20",
   "settings": []
 }
 {% endschema %}

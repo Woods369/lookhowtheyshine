@@ -9,50 +9,7 @@
  */
 {
   "sections": {
-    "video-carousel": {
-      "type": "video-carousel",
-      "blocks": {
-        "slide_J49PUc": {
-          "type": "slide",
-          "settings": {
-            "video": "shopify://files/videos/slide-2.mov",
-            "thumbnail": "shopify://shop_images/multiple-colors-shining-through-a-gemstone.jpg",
-            "description": "",
-            "mobile-position": 50,
-            "position": 50
-          }
-        }
-      },
-      "block_order": [
-        "slide_J49PUc"
-      ],
-      "settings": {
-        "heading": "",
-        "slide_duration": 5,
-        "slide_transition": 300,
-        "parallax_speed": 0.8
-      }
-    },
-    "newsletter_nqKmeU": {
-      "type": "newsletter",
-      "name": "Newsletter",
-      "settings": {
-        "heading": "Stay in the Loop",
-        "subheading": "Be the first to know about new arrivals and exclusive offers",
-        "button_text": "Subscribe",
-        "success_message": "Thank you for subscribing!",
-        "parallax_speed": 1.2
-      }
-    },
-    "collections_yGHzAH": {
-      "type": "collections",
-      "name": "Collections Browser",
-      "settings": {}
-    }
   },
   "order": [
-    "video-carousel",
-    "collections_yGHzAH",
-    "newsletter_nqKmeU"
   ]
 }
