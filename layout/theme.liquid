@@ -6,7 +6,9 @@
 
     {% # Load Tailwind CSS %}
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
+    <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script>
+    
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
 
@@ -14,6 +16,9 @@
 
 
     {{ content_for_header }}
+
+    {% comment %} <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script> {% endcomment %}
+    
 
     {% comment %} Main JS - loads after HTML parsing but before DOMContentLoaded {% endcomment %}
     <script defer src="{{ 'main.js' | asset_url }}"></script>
@@ -44,6 +49,6 @@
     
     {% sections 'footer-group' %}
 
-    <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
+
   </body>
 </html>
