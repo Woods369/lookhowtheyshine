@@ -30,19 +30,21 @@
       body {
         padding-bottom: 200px;
       }
+
+      body:has( > .main-content >    header.open ) {
+        max-height: 100svh;
+        overflow: hidden;
+      }
       
       .main-content {
-        background: white;
-        position: relative;
-        z-index: 20;
         min-height: 100vh;
       }
     
     </style>
   </head>
 
-  <body>
-    <div class="main-content">
+  <body class="bg-white pb-[200px]">
+    <div class="main-content z-20 relative">
       {% sections 'header-group' %}
       {{ content_for_layout }}
     </div>

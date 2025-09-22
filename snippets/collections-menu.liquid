@@ -1,0 +1,19 @@
+{%- comment -%}
+  Dynamic Collection Menu Snippet
+  Usage: {% render 'collection-menu' %}
+{%- endcomment -%}
+
+<nav class="collection-menu ">
+  {%- for collection in collections limit: 10 -%}
+    {%- unless collection.handle == 'frontpage' -%}
+      {%- if collection.products_count > 0 -%}
+        <div class="menu-item">
+          <a href="{{ collection.url }}" class="menu-link">
+            {{ collection.title }}
+            <span class="product-count">({{ collection.products_count }})</span>
+          </a>
+        </div>
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endfor -%}
+</nav>
