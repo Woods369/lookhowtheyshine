@@ -21,7 +21,7 @@
     
 
     {% comment %} Main JS - loads after HTML parsing but before DOMContentLoaded {% endcomment %}
-    <script defer src="{{ 'main.js' | asset_url }}"></script>
+    <script defer src="{{ 'main.js' | asset_url }}" type="module"></script>
 
     {% # Critical CSS %}
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
@@ -31,7 +31,7 @@
         padding-bottom: 200px;
       }
 
-      body:has( > .main-content >    header.open ) {
+      body:has( > .main-content > header.open ) {
         max-height: 100svh;
         overflow: hidden;
       }
@@ -43,14 +43,12 @@
     </style>
   </head>
 
-  <body class="bg-white pb-[200px]">
+  <body class="bg-white pb-[200px]{% if template.name == 'index' %} home {% endif %}">
     <div class="main-content z-20 relative">
       {% sections 'header-group' %}
       {{ content_for_layout }}
     </div>
     
     {% sections 'footer-group' %}
-
-
   </body>
 </html>

@@ -1,45 +1,497 @@
 {% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
+  Collection page with sidebar filters and product grid
+  Includes collections, tags, and other filter options
 {% endcomment %}
 
-<div class="mt-[100px] mb-60 flex flex-wrap justify-between w-full items-center">
-<h1 class="text-6xl">{{ collection.title }} <em class="text-slate-500 font-thin">Collection </em></h1>
-<a class="underline underline-offset-[3px]" href="{{ routes.collections_url }}"><em class="text-slate-500 font-thin">Back to </em>Collections</a>
-</div>
-
-<div class="collection-products grid mx-20 gap-20 grid-cols-[repeat(auto-fill,_minmax(400px,_1fr))]">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      <a href="{{ product.url }}" class="collection-product">
-        {% if product.featured_image %}
-          {% render 'image',
-            class: 'collection-product__image',
-            image: product.featured_image,
-            width: 400,
-            height: 400,
-            crop: 'center'
-          %}
-        {% endif %}
-        <div class="flex flex-wrap justify-between items-center w-full">
-          <p class="text-4xl">{{ product.title | escape }} </p>
-          <p class="text-4x1">{{ product.price | money }}</p>
+<div class="collection-shop-container bg-white" id="collection-with-filters" data-section-id="{{ section.id }}">
+  
+  <!-- Search Bar -->
+  <div class="search-bar-container bg-gray-50 border-b border-gray-200 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <form role="search" method="get" action="{{ routes.search_url }}" class="relative">
+        <input
+          type="search"
+          name="q"
+          id="search-input"
+          value="{{ search.terms | escape }}"
+          placeholder="Search products..."
+          aria-label="Search products"
+          class="w-full py-3 px-4 pl-12 pr-4 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+        >
+        <input type="hidden" name="type" value="product">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
         </div>
-      </a>
-    {% endfor %}
+        <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+          <span class="sr-only">Search</span>
+          <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5-5 5M6 12h12"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
 
-    {{ paginate | default_pagination }}
-  {% endpaginate %}
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Mobile Filter Toggle -->
+    <div class="lg:hidden mb-6">
+      <button 
+        type="button" 
+        id="mobile-filter-toggle"
+        class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+        </svg>
+        Filters & Sort
+      </button>
+    </div>
+
+    <!-- Two Column Layout: Sidebar (1/3) + Products (2/3) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Sidebar Filters (1/3 width) -->
+      <aside 
+        class="lg:col-span-4 xl:col-span-3" 
+        id="sidebar-filters"
+        style="display: none;"
+      >
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+          
+          <!-- Collections Filter -->
+          <div class="border-b border-gray-200 pb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Collections</h3>
+            <div class="space-y-3 max-h-48 overflow-y-auto">
+              {% for collection in collections %}
+                {% unless collection.handle == 'frontpage' or collection.products_count == 0 %}
+                  <label class="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      name="collection"
+                      value="{{ collection.handle }}"
+                      data-filter-type="collection"
+                      class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 filter-checkbox"
+                    >
+                    <span class="ml-3 text-sm text-gray-700 flex-1">
+                      {{ collection.title }}
+                      <span class="text-gray-500">({{ collection.products_count }})</span>
+                    </span>
+                  </label>
+                {% endunless %}
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Product Type Filter -->
+          {% assign product_types = collection.products | map: 'type' | compact | uniq | sort %}
+          {% if product_types.size > 1 %}
+            <div class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Product Type</h3>
+              <div class="space-y-3 max-h-48 overflow-y-auto">
+                {% for product_type in product_types %}
+                  <label class="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      name="product_type"
+                      value="{{ product_type | handle }}"
+                      data-filter-type="product_type"
+                      class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 filter-checkbox"
+                    >
+                    <span class="ml-3 text-sm text-gray-700">{{ product_type }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Vendor Filter -->
+          {% assign vendors = collection.products | map: 'vendor' | compact | uniq | sort %}
+          {% if vendors.size > 1 %}
+            <div class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Brand</h3>
+              <div class="space-y-3 max-h-48 overflow-y-auto">
+                {% for vendor in vendors %}
+                  <label class="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      name="vendor"
+                      value="{{ vendor | handle }}"
+                      data-filter-type="vendor"
+                      class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 filter-checkbox"
+                    >
+                    <span class="ml-3 text-sm text-gray-700">{{ vendor }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Tags Filter -->
+          {% assign all_tags = '' %}
+          {% for product in collection.products %}
+            {% for tag in product.tags %}
+              {% assign all_tags = all_tags | append: ',' | append: tag %}
+            {% endfor %}
+          {% endfor %}
+          {% assign unique_tags = all_tags | split: ',' | compact | uniq | sort %}
+          
+          {% if unique_tags.size > 1 %}
+            <div class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Tags</h3>
+              <div class="space-y-3 max-h-48 overflow-y-auto">
+                {% for tag in unique_tags limit: 20 %}
+                  {% unless tag == blank %}
+                    <label class="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded">
+                      <input
+                        type="checkbox"
+                        name="tag"
+                        value="{{ tag | handle }}"
+                        data-filter-type="tag"
+                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 filter-checkbox"
+                      >
+                      <span class="ml-3 text-sm text-gray-700">{{ tag }}</span>
+                    </label>
+                  {% endunless %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Price Range Filter -->
+          <div class="border-b border-gray-200 pb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Price Range</h3>
+            <div class="space-y-4">
+              <div>
+                <label for="price-min" class="block text-sm font-medium text-gray-700">Min Price (£)</label>
+                <input
+                  type="number"
+                  id="price-min"
+                  name="price_min"
+                  min="0"
+                  step="0.01"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 price-filter"
+                >
+              </div>
+              <div>
+                <label for="price-max" class="block text-sm font-medium text-gray-700">Max Price (£)</label>
+                <input
+                  type="number"
+                  id="price-max"
+                  name="price_max"
+                  min="0"
+                  step="0.01"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 price-filter"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Sort Options -->
+          <div class="border-b border-gray-200 pb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Sort By</h3>
+            <select 
+              name="sort_by" 
+              id="sort-by" 
+              class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sort-filter"
+            >
+              <option value="manual">Featured</option>
+              <option value="best-selling">Best Selling</option>
+              <option value="title-ascending">A-Z</option>
+              <option value="title-descending">Z-A</option>
+              <option value="price-ascending">Price: Low to High</option>
+              <option value="price-descending">Price: High to Low</option>
+              <option value="created-descending">Newest</option>
+              <option value="created-ascending">Oldest</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters -->
+          <div class="pt-4">
+            <button 
+              id="clear-filters"
+              class="w-full flex justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Product Grid (2/3 width) -->
+      <main class="lg:col-span-8 xl:col-span-9">
+        
+        <!-- Results Header -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ collection.title }}</h1>
+            {% if collection.description != blank %}
+              <p class="mt-2 text-gray-600">{{ collection.description }}</p>
+            {% endif %}
+            <p id="product-count" class="mt-2 text-sm text-gray-500" aria-live="polite">
+              {{ collection.products_count }} products
+            </p>
+          </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div 
+          id="product-grid"
+          class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
+        >
+          {% for product in collection.products %}
+            <div class="product-card group" 
+                 data-product-type="{{ product.type | handle }}"
+                 data-vendor="{{ product.vendor | handle }}"
+                 data-tags="{{ product.tags | join: ',' | handle }}"
+                 data-price="{{ product.price | money_without_currency | remove: ',' }}"
+                 data-created="{{ product.created_at | date: '%s' }}"
+                 data-title="{{ product.title | handle }}"
+            >
+              <a href="{{ product.url }}" class="block">
+                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                  {% if product.featured_image %}
+                    <div class="overflow-hidden">
+                      {% render 'image',
+                        class: 'w-full h-full object-cover group-hover:scale-105 transition-transform',
+                        image: product.featured_image,
+                        width: 400,
+                        height: 400,
+                        loading: 'lazy'
+                      %}
+                    </div>
+
+                  {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                      <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                  <h3 class="text-sm font-medium text-gray-900 group-hover:text-gray-500 transition-colors">
+                    {{ product.title | escape }}
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-500">
+                    {{ product.price | money }}
+                    {% if product.compare_at_price > product.price %}
+                      <span class="line-through text-gray-400 ml-2">
+                        {{ product.compare_at_price | money }}
+                      </span>
+                    {% endif %}
+                  </p>
+                </div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- No Products Message -->
+        <div id="no-products" class="text-center py-12 hidden">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+          <p class="mt-1 text-sm text-gray-500">Try adjusting your filters to see more products.</p>
+        </div>
+        
+      </main>
+    </div>
+  </div>
 </div>
 
+<style>
+  /* Show sidebar on desktop */
+  @media (min-width: 1024px) {
+    #sidebar-filters {
+      display: block !important;
+    }
+  }
+  
+  /* Mobile filter toggle */
+  @media (max-width: 1023px) {
+    #sidebar-filters.mobile-open {
+      display: block !important;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const productGrid = document.getElementById('product-grid');
+  const productCount = document.getElementById('product-count');
+  const noProductsMessage = document.getElementById('no-products');
+  const mobileToggle = document.getElementById('mobile-filter-toggle');
+  const sidebar = document.getElementById('sidebar-filters');
+  const clearFiltersBtn = document.getElementById('clear-filters');
+  
+  let allProducts = Array.from(document.querySelectorAll('.product-card'));
+  
+  // Mobile filter toggle
+  if (mobileToggle && sidebar) {
+    mobileToggle.addEventListener('click', function() {
+      sidebar.classList.toggle('mobile-open');
+    });
+  }
+
+  // Filter functionality
+  function applyFilters() {
+    const activeFilters = {
+      collections: [],
+      productTypes: [],
+      vendors: [],
+      tags: [],
+      priceMin: parseFloat(document.getElementById('price-min').value) || 0,
+      priceMax: parseFloat(document.getElementById('price-max').value) || Infinity,
+      sortBy: document.getElementById('sort-by').value
+    };
+
+    // Collect active filters
+    document.querySelectorAll('.filter-checkbox:checked').forEach(checkbox => {
+      const filterType = checkbox.dataset.filterType;
+      const value = checkbox.value;
+      
+      switch(filterType) {
+        case 'collection':
+          activeFilters.collections.push(value);
+          break;
+        case 'product_type':
+          activeFilters.productTypes.push(value);
+          break;
+        case 'vendor':
+          activeFilters.vendors.push(value);
+          break;
+        case 'tag':
+          activeFilters.tags.push(value);
+          break;
+      }
+    });
+
+    // Filter products
+    const filteredProducts = allProducts.filter(product => {
+      const productPrice = parseFloat(product.dataset.price);
+      const productType = product.dataset.productType;
+      const productVendor = product.dataset.vendor;
+      const productTags = product.dataset.tags.split(',').map(tag => tag.trim());
+
+      // Price filter
+      if (productPrice < activeFilters.priceMin || productPrice > activeFilters.priceMax) {
+        return false;
+      }
+
+      // Product type filter
+      if (activeFilters.productTypes.length > 0 && !activeFilters.productTypes.includes(productType)) {
+        return false;
+      }
+
+      // Vendor filter
+      if (activeFilters.vendors.length > 0 && !activeFilters.vendors.includes(productVendor)) {
+        return false;
+      }
+
+      // Tags filter
+      if (activeFilters.tags.length > 0) {
+        const hasMatchingTag = activeFilters.tags.some(tag => productTags.includes(tag));
+        if (!hasMatchingTag) return false;
+      }
+
+      return true;
+    });
+
+    // Sort products
+    filteredProducts.sort((a, b) => {
+      switch(activeFilters.sortBy) {
+        case 'price-ascending':
+          return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+        case 'price-descending':
+          return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+        case 'title-ascending':
+          return a.dataset.title.localeCompare(b.dataset.title);
+        case 'title-descending':
+          return b.dataset.title.localeCompare(a.dataset.title);
+        case 'created-descending':
+          return parseInt(b.dataset.created) - parseInt(a.dataset.created);
+        case 'created-ascending':
+          return parseInt(a.dataset.created) - parseInt(b.dataset.created);
+        default:
+          return 0;
+      }
+    });
+
+    // Update display
+    allProducts.forEach(product => product.style.display = 'none');
+    filteredProducts.forEach(product => product.style.display = 'block');
+    
+    // Update product count
+    const count = filteredProducts.length;
+    productCount.textContent = `${count} product${count !== 1 ? 's' : ''}`;
+    
+    // Show/hide no products message
+    if (count === 0) {
+      noProductsMessage.classList.remove('hidden');
+      productGrid.classList.add('hidden');
+    } else {
+      noProductsMessage.classList.add('hidden');
+      productGrid.classList.remove('hidden');
+    }
+  }
+
+  // Event listeners
+  document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', applyFilters);
+  });
+
+  document.querySelectorAll('.price-filter').forEach(input => {
+    input.addEventListener('input', debounce(applyFilters, 300));
+  });
+
+  document.querySelector('.sort-filter').addEventListener('change', applyFilters);
+
+  // Clear filters
+  clearFiltersBtn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.price-filter').forEach(input => input.value = '');
+    document.querySelector('.sort-filter').value = 'manual';
+    applyFilters();
+  });
+
+  // Debounce helper
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+});
+</script>
 
 {% schema %}
 {
-  "name": "t:general.collection",
-  "tag": "section",
-  "class": "mx-20",
-  "settings": []
+  "name": "Collection with Filters",
+  "class": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "default": true,
+      "label": "Enable filtering"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "default": true,
+      "label": "Enable sorting"
+    }
+  ]
 }
 {% endschema %}
