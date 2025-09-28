@@ -346,8 +346,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const searchInput = document.getElementById('search-input');
 
-  searchInput.addEventListener('change', function() {
-    // alert('shania stinks!');
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.trim();
+    
+    // If search term is empty, show all products
+    if (searchTerm === '') {
+      document.querySelectorAll('.product-card').forEach(card => {
+        card.style.display = 'block';
+      });
+      return;
+    }
+    
+    // Filter products based on search term
+    document.querySelectorAll('.product-card').forEach(card => {
+      const productTitle = card.querySelector('h3').textContent.toLowerCase();
+      const matchesSearch = productTitle.includes(searchTerm.toLowerCase());
+      
+      card.style.display = matchesSearch ? 'block' : 'none';
+    });
   })
   
   let allProducts = Array.from(document.querySelectorAll('.product-card'));
@@ -488,14 +504,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Event listeners
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', applyFilters);
+    checkbox.addEventListener('input', applyFilters);
   });
 
   document.querySelectorAll('.price-filter').forEach(input => {
     input.addEventListener('input', debounce(applyFilters, 300));
   });
 
-  document.querySelector('.sort-filter').addEventListener('change', applyFilters);
+  document.querySelector('.sort-filter').addEventListener('input', applyFilters);
 
   // Clear filters
   clearFiltersBtn.addEventListener('click', function() {
