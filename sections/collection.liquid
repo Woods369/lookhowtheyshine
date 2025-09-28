@@ -103,6 +103,7 @@
               </div>
               <div class="space-y-2 max-h-32 overflow-y-auto mt-2 collapse-content hidden" id="product-type-filter">
                 {% for product_type in product_types %}
+                  {% if product_type != null and product_type != "" %}
                   <label class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded text-xs">
                     <input
                       type="checkbox"
@@ -113,6 +114,7 @@
                     >
                     <span class="ml-2 text-gray-700">{{ product_type }}</span>
                   </label>
+                  {% endif %}
                 {% endfor %}
               </div>
             </div>
@@ -345,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('search-input');
 
   searchInput.addEventListener('change', function() {
-    alert('shania stinks!');
+    // alert('shania stinks!');
   })
   
   let allProducts = Array.from(document.querySelectorAll('.product-card'));
