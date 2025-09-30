@@ -56,11 +56,9 @@
     "show_payment_icons": "Show payment icons",
     "text_style": "Text style",
     "text": "Text",
-
-    // Brand
     "favicon": "Favicon",
     "logo": "Logo",
-    "company_name": "Company name",
+    "company_name": "Company name"
   },
   "options": {
     "alignment": {

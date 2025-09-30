@@ -5,9 +5,9 @@
     {% render 'css-variables' %}
 
     {% # Load Tailwind CSS %}
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script>
     
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
@@ -17,7 +17,36 @@
 
     {{ content_for_header }}
 
-    {% comment %} <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script> {% endcomment %}
+    <!-- CART FORM INTERCEPTOR -->
+    <script>
+    console.log("Cart interceptor loading...");
+    document.addEventListener("submit", function(e) {
+      console.log("Form submitted to:", e.target.action);
+      if (e.target.action && e.target.action.includes("cart/add")) {
+        console.log("INTERCEPTING CART FORM!");
+        e.preventDefault();
+        handleCartSubmission(e.target);
+        return false;
+      }
+    }, true);
+    async function handleCartSubmission(form) {
+      const formData = new FormData(form);
+      const button = form.querySelector('[type="submit"]');
+      if (button) { button.textContent = "Adding..."; button.disabled = true; }
+      try {
+        const response = await fetch("/cart/add.json", { method: "POST", body: formData });
+        if (response.ok) {
+          console.log("✅ Added to cart!");
+          setTimeout(() => {
+            if (window.cartDrawer) { window.cartDrawer.open(); } else { alert("Item added to cart!"); }
+          }, 200);
+        }
+      } catch (error) { console.error("❌ Error:", error); }
+      finally { if (button) { button.textContent = "Add to cart"; button.disabled = false; } }
+    }
+    </script>
+
+    {% comment %} <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script> {% endcomment %}
     
 
     {% comment %} Main JS - loads after HTML parsing but before DOMContentLoaded {% endcomment %}
@@ -50,5 +79,8 @@
     </div>
     
     {% sections 'footer-group' %}
+    
+    {% comment %} Cart Drawer {% endcomment %}
+    {% render 'cart-drawer' %}
   </body>
 </html>
