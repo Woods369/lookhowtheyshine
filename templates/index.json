@@ -17,10 +17,18 @@
         "description": ""
       }
     },
-    "collections_yGHzAH": {
-      "type": "collections",
-      "name": "Collections Browser",
-      "settings": {}
+    "featured_collections_NMxBq8": {
+      "type": "featured-collections",
+      "name": "Featured Collections",
+      "settings": {
+        "collection_list": [
+          "advent-calendar",
+          "christmas",
+          "halloween",
+          "heart",
+          "trees"
+        ]
+      }
     },
     "newsletter_nqKmeU": {
       "type": "newsletter",
@@ -36,7 +44,7 @@
   },
   "order": [
     "video_background_FBF7tQ",
-    "collections_yGHzAH",
+    "featured_collections_NMxBq8",
     "newsletter_nqKmeU"
   ]
 }

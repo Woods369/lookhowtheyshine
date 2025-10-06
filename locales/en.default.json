@@ -6,7 +6,7 @@
   },
   "blog": {
     "article_comments": "Comments",
-    "article_metadata_html": "{{ date }} by {{ author }}",
+    "article_metadata_html": "{{ date }} by {{ author }}",                                                              
     "comment_form_body": "Comment",
     "comment_form_email": "Email",
     "comment_form_name": "Name",

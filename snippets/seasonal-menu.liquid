@@ -1,0 +1,17 @@
+<div class="dropdown-item">
+    <div class="dropdown-toggle block py-2 px-6 text-gray-700 text-4xl cursor-pointer"> Seasonal </div>
+    <div class="dropdown-items h-0 closed overflow-hidden will-change-[height]">
+    {%- for collection in collections -%}
+        {%- if collection.handle == 'christmas'
+            or collection.handle == 'halloween'
+            or collection.handle == 'advent-calendar' -%}
+            {%- if collection.products_count > 0 or collection.products.size == 0 -%}
+                <a href="{{ collection.url }}" class="menu-item block py-2 px-10 text-gray-700 text-2xl hover:text-gray-200 transition-all duration-300" >
+                    {{ collection.title }}
+                    <span class="text-sm text-gray-400">({{ collection.products_count }})</span>
+                </a>
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+    </div>
+</div>

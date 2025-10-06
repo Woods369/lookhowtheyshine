@@ -1,0 +1,35 @@
+{%- comment -%}
+  Gemstone Collections Dropdown Menu Snippet
+  Usage: {% render 'gemstone-menu' %}
+{%- endcomment -%}
+
+<div class="dropdown-item">
+  <!-- Gemstone Toggle Button -->
+  <button 
+    class="dropdown-toggle w-full text-left py-2 px-6 text-gray-700 text-4xl hover:text-black transition-colors duration-150 cursor-pointer"
+    aria-expanded="false"
+    aria-haspopup="true"
+  >
+    Gemstones
+  </button>
+  
+  <!-- Dropdown Content -->
+  <div class="dropdown-items closed h-0 overflow-hidden">
+    {%- assign gemstone_handles = 'amethyst,selenite,agate,rose-quartz,tigers-eye,sodalite' | split: ',' -%}
+    
+    {%- comment -%} Loop through collections and filter for gemstones {%- endcomment -%}
+    {%- for collection in collections -%}
+      {%- if gemstone_handles contains collection.handle -%}
+        {%- if collection.products_count > 0 -%}
+          <a 
+            href="{{ collection.url }}" 
+            class="menu-item block py-2 px-10 text-gray-700 text-2xl hover:text-gray-200 transition-all duration-300"
+          >
+            {{ collection.title }}
+            <span class="text-sm text-gray-400">({{ collection.products_count }})</span>
+          </a>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>

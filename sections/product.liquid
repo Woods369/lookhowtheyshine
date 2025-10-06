@@ -18,7 +18,8 @@ media, content, and add-to-cart form.
         {% for image in product.images %}
         <div class="thumbnail-wrapper {% if forloop.first %}selected active-thumbnail{% else %}grayscale-[0.7]{% endif %} opacity-70 hover:opacity-100 hover:grayscale-0 duration-100 ease-in-out cursor-pointer rounded-lg overflow-hidden"
           data-highres-src="{{ image | image_url: width: 1200, height: 1200, crop: 'center' }}"
-          data-image-id="{{ image.id }}">
+          data-image-id="{{ image.id }}"
+          data-variant="{{ image.variants.first.id }}">
           {{ image | image_url: width: 200 | image_tag : preload: true , class: 'w-full aspect-square object-cover' }}
         </div>
         {% endfor %}
@@ -45,12 +46,12 @@ media, content, and add-to-cart form.
           <input type="hidden" name="id" value="{{ current_variant.id }}" class="js-variant-id">
 
           <div class="form-group">
-            <label for="variants" class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
+            {% comment %} <label for="variants" class="block text-sm font-medium text-gray-700 mb-2"></label> {% endcomment %}
             <div class="relative">
               <select id="variants" name="variants" class="js-variant-selector block w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none">
                 {% for variant in product.variants %}
                 <option value="{{ variant.id }}" {% if variant==current_variant %} selected="selected" {% endif %} data-variant-id="{{ variant.id }}" data-price="{{ variant.price }}" data-available="{{ variant.available }}">
-                  {{ variant.title }} - {{ variant.price | money }}
+                  {{ variant.title }}
                 </option>
                 {% endfor %}
               </select>
@@ -98,6 +99,21 @@ media, content, and add-to-cart form.
     thumbnailWrappers.forEach(wrapper => {
       wrapper.addEventListener('click', function() {
         const highResSrc = this.dataset.highresSrc;
+        const thumbnailVariant = this.dataset.variant; // The variant ID from data-variant
+    
+        if (variantSelector && thumbnailVariant) {
+          // Find the option that matches this variant
+          const matchingOption = variantSelector.querySelector(`option[data-variant-id="${thumbnailVariant}"]`);
+          
+          if (matchingOption) {
+            // Update the select value
+            variantSelector.value = thumbnailVariant;
+            
+            // Trigger the change event to update price, availability, etc.
+            const changeEvent = new Event('change', { bubbles: true });
+            variantSelector.dispatchEvent(changeEvent);
+          }
+        }
 
         // Update active image
         activeImage.src = highResSrc;
@@ -121,6 +137,27 @@ media, content, and add-to-cart form.
         const variantId = selectedOption.dataset.variantId;
         const variantPrice = selectedOption.dataset.price;
         const isAvailable = selectedOption.dataset.available === 'true';
+
+        const targetThumbnail = document.querySelector(`[data-variant="${variantId}"]`);
+
+            if (targetThumbnail) {
+                // Remove active state from all thumbnails
+                thumbnailWrappers.forEach(w => {
+                    w.classList.remove('active-thumbnail');
+                    w.classList.add('grayscale-[0.7]');
+                });
+                
+                // Set new active thumbnail
+                targetThumbnail.classList.add('active-thumbnail');
+                targetThumbnail.classList.remove('grayscale-[0.7]');
+                
+                // Update the main image
+                const highResSrc = targetThumbnail.dataset.highresSrc;
+                activeImage.src = highResSrc;
+                activeImage.alt = targetThumbnail.querySelector('img').alt;
+            }
+
+
         
         // Update hidden input with selected variant ID
         hiddenVariantInput.value = variantId;

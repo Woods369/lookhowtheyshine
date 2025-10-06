@@ -6,7 +6,6 @@
 {% assign all_products = collections.all.products %}
 
 <div class="shop-container bg-white" id="all-products-shop" data-section-id="{{ section.id }}">
-  
   <!-- Search Bar (Full Width) -->
   <div class="search-bar-container bg-gray-50 border-b border-gray-200 py-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -281,6 +280,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Mobile filter toggle
+  alert('bloop');
   const mobileToggle = document.getElementById('mobile-filter-toggle');
   const sidebar = document.getElementById('sidebar-filters');
   
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   ],
   "enabled_on": {
-    "templates": ["list-collections"]
+    "templates": ["collection"]
   }
 }
 {% endschema %}

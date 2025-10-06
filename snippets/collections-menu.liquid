@@ -3,13 +3,20 @@
   Usage: {% render 'collections-menu' %}
 {%- endcomment -%}
 
-<div class="collections-list max-h-100 overflow-auto">
+<div class="collections-list max-h-150 overflow-auto">
+  {%- assign gemstone_handles = 'amethyst,selenite,agate,rose-quartz,tigers-eye,sodalite' | split: ',' -%}
+  {%- assign jewellery_handles = 'jewellery,bracelets' | split: ',' -%}
   {%- for collection in collections -%}
-    {%- unless collection.handle == 'frontpage' -%}
-      {%- if collection.products_count > 0 or collection.products.size == 0 -%}
+    {%- unless collection.handle == 'frontpage'
+        or collection.handle == 'halloween'
+        or collection.handle == 'christmas'
+        or collection.handle == 'advent-calendar'
+        or gemstone_handles contains collection.handle
+        or jewellery_handles contains collection.handle -%}
+      {%- if collection.products_count > 0 or collection.products.size > 0 -%}
         <a 
           href="{{ collection.url }}" 
-          class="menu-item block py-2 px-6 text-gray-700 text-4xl"
+          class="menu-item block py-2 px-6 text-gray-700 text-4xl hover:text-gray-200 transition-all duration-300 {{ collection.handle }}"
         >
           {{ collection.title }}
           <span class="text-sm text-gray-400">({{ collection.products_count }})</span>

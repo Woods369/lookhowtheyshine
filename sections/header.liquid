@@ -48,6 +48,7 @@
     .menu-screen {
       left: 0;
     }
+  
   }
 
 {% endstyle %}
@@ -76,12 +77,7 @@
 
         is_open = false;
       }
-
-
-      
   })
-
-  // gsap.to("#menu-1", { duration: 1, morphSVG: "#menu-close-1" });
 
   window.addEventListener('scroll', (event) => {
     if (window.scrollY > 50) {

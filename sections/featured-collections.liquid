@@ -6,22 +6,22 @@
 <div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20">
   
   <!-- Collections Sidebar -->
-  <div class="collects-side lg:w-1/3">
+  <div class="lg:w-1/3">
     <h1 class="text-5xl lg:text-4xl mb-6">{{ 'collections.title' | t }}</h1>
     
-    <nav class="collections-nav flex flex-row gap-6 lg:flex-col overflow-x-scroll px-4 space-y-1 lg:overflow-hidden">
+    <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
       {% if section.settings.collection_list %}
         {% for collection in section.settings.collection_list %}
-          {% unless collection.handle == 'frontpage' or collection.products.size == 0 %}
-            <button class="collection-nav-item w-full text-left w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
+          {% unless collection.products.size == 0 %}
+            <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
               <h3 class="text-2xl lg:text-3xl w-max">{{ collection.title }}</h3>
             </button>
           {% endunless %}
         {% endfor %}
       {% else  %}
         {% for collection in collections %}
-          {% unless collection.handle == 'frontpage' or collection.products.size == 0 %}
-            <button class="collection-nav-item w-full text-left w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
+          {% unless collection.products.size == 0 %}
+            <button class="collection-link text-left w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
               <h3 class="text-2xl lg:text-3xl w-max">{{ collection.title }}</h3>
             </button>
           {% endunless %}
@@ -31,8 +31,8 @@
   </div>
 
   <!-- Collections Preview -->
-  <div class="collections-preview lg:w-2/3">
-    <div class="preview-default text-center py-20">
+  <div class="lg:w-2/3">
+    <div class="preview-default text-center py-20 h-full flex items-center">
       <div class="max-w-md mx-auto">
         <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -44,7 +44,7 @@
 
     <div class="preview-loading hidden text-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-      <p class="text-gray-600 text-3xl">Loading products...</p>
+      <p class="text-gray-600 text-3xl">Loading <span></span> Collection...</p>
     </div>
 
     <!-- Preview Content -->
@@ -52,7 +52,7 @@
       <div class="collection-header mb-6 flex flex-wrap justify-between items-start">
         <h2 class="collection-title text-4xl h-max"></h2>
         <div class="text-center">
-          <a href="#" class="view-collection underline text-black underline-offset-[6px] hover:underline-offset-[4px] text-2xl">
+          <a href="#" class="view-collection underline  text-black transition-all duration-300 underline-offset-[5px] hover:underline-offset-[4px] text-2xl">
             View Full Collection →
           </a>
         </div>
@@ -67,16 +67,17 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const navItems = document.querySelectorAll('.collection-nav-item');
+    const collectionLink = document.querySelectorAll('.collection-link');
+
     const previewDefault = document.querySelector('.preview-default');
     const previewLoading = document.querySelector('.preview-loading');
     const previewContent = document.querySelector('.preview-content');
     const productsGrid = document.querySelector('.products-grid');
     
-    navItems.forEach(item => {
+    collectionLink.forEach(item => {
       item.addEventListener('click', async function() {
         // Remove active state from all items
-        navItems.forEach(nav => {
+        collectionLink.forEach(nav => {
           nav.classList.remove('border-black', 'bg-gray-100');
         });
         
@@ -86,6 +87,7 @@
         // Get collection data
         const handle = this.dataset.collectionHandle;
         const title = this.dataset.collectionTitle;
+        previewLoading.querySelector('span').innerHTML = title;
         
         // Show loading
         previewDefault.classList.add('hidden');
@@ -96,11 +98,10 @@
           // Fetch products from collection
           const response = await fetch(`/collections/${handle}/products.json?limit=4`);
           const data = await response.json();
-        
-          // Clear and populate grid
-          productsGrid.innerHTML = '';
 
-          // console.log(data.products);
+          console.log(data);
+        
+          productsGrid.innerHTML = '';
 
           if (!data.products) console.log('gotcha');
           
@@ -108,16 +109,15 @@
             const productCard = createProductCard(product);
             productsGrid.appendChild(productCard);
           });
-
-          // Update header
-          // document.querySelector('.collection-title').textContent = title;
           
           // Update the view collection button
           document.querySelector('.view-collection').href = `/collections/${handle}`;
           
-          // Show content
-          previewLoading.classList.add('hidden');
-          previewContent.classList.remove('hidden');
+          setTimeout(function(){
+            previewLoading.classList.add('hidden');
+            previewContent.classList.remove('hidden');
+          }, 400)
+
           
         } catch (error) {
           console.error('Error loading collection:', error);
