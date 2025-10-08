@@ -3,7 +3,7 @@ This section is used in the product template to render product page with
 media, content, and add-to-cart form.
 {% endcomment %}
 
-<div class="product max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  mt-40">
+<div class="product max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-40 bg-white">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
     <!-- Left Column: Product Gallery (Sticky) -->
     <div class="product-gallery lg:sticky lg:top-32 lg:h-fit">
@@ -89,6 +89,46 @@ media, content, and add-to-cart form.
       </div>
     </div>
   </div>
+
+<!-- Related Products from Same Collections -->
+<div class="related-products mt-16">
+  <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">You might also like</h2>
+  
+  {% assign max_products = 8 %}
+  {% assign products_shown = 0 %}
+  {% assign shown_product_ids = '' %}
+  
+  {% if products_shown < max_products %}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {% for collection in product.collections %}
+        {% for related_product in collection.products %}
+          {% if related_product.available and related_product.id != product.id and products_shown < max_products %}
+            {% assign product_id_string = related_product.id | append: ',' %}
+            {% unless shown_product_ids contains product_id_string %}
+              {% assign shown_product_ids = shown_product_ids | append: product_id_string %}
+              {% assign products_shown = products_shown | plus: 1 %}
+              
+              <div class="group">
+                <a href="{{ related_product.url }}" class="block">
+                  {% if related_product.featured_image %}
+                    <div class="aspect-square overflow-hidden rounded-lg bg-gray-100 mb-4">
+                      <img src="{{ related_product.featured_image | image_url: width: 400 }}" 
+                           alt="{{ related_product.featured_image.alt | escape }}" 
+                           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                  {% endif %}
+                  <h3 class="text-sm font-medium text-gray-900 mb-2">{{ related_product.title }}</h3>
+                  <p class="text-sm text-gray-600">{{ related_product.price | money }}</p>
+                </a>
+              </div>
+              
+            {% endunless %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
 </div>
 
 {% javascript %}
