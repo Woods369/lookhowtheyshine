@@ -1,10 +1,10 @@
 <div class="menu cursor-pointer absolute top-[50%] translate-y-[-50%] left-[20px] z-20">
-  <svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path id="menu-1" d="M3 5H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path id="menu-2" d="M3 12H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 19H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-  <svg style="display: none;" width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" opacity="0" xmlns="http://www.w3.org/2000/svg"><path id="menu-close-1" d="M3 5H11" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path id="menu-close-2" d="M3 12H16" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 19H21" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  <svg id="menu-open" width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path id="menu-1" d="M3 5H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path id="menu-2" d="M3 12H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 19H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  <svg id="menu-close" style="display: none;" width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" opacity="0" xmlns="http://www.w3.org/2000/svg"><path id="menu-close-1" d="M3 5H11" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path id="menu-close-2" d="M3 12H16" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 19H21" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 </div>
 
 
-<div class="menu-screen z-10 absolute left-[-110%] top-0 bottom-0 w-svw lg:w-[33vw] h-svh bg-white transition-left duration-300 grid place-items-center">
+<div class="menu-screen z-10 absolute left-[-110%] top-0 bottom-0 w-svw lg:w-[33vw] h-svh bg-white transition-left duration-300 grid place-items-center-start">
   <div class="w-full pt-50">
     <a 
           href="{{ collection.url }}/collections/all" 
@@ -15,6 +15,5 @@
             {% render 'gemstone-menu' %}
     {% render 'seasonal-menu' %}
     {% render 'jewellery-menu' %}
-    {% render 'collections-menu' %}
   </div>
 </div>
