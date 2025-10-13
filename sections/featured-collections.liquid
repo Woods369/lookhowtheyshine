@@ -3,10 +3,21 @@
   collections with an interactive sidebar and preview area.
 {% endcomment %}
 
-<div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20">
+<div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20 relative">
+  
+  <!-- Halloween Blood Drop Effect -->
+  {% if section.settings.enable_blood_drop %}
+    {% render 'blood-drop',
+       x_position: section.settings.blood_x_position,
+       y_position: section.settings.blood_y_position,
+       size: section.settings.blood_size,
+       color: section.settings.blood_color,
+       goo_particles: section.settings.goo_particles,
+       speed: section.settings.animation_speed %}
+  {% endif %}
   
   <!-- Collections Sidebar -->
-  <div class="lg:w-1/3">
+  <div class="lg:w-1/4">
     <h1 class="text-5xl lg:text-4xl mb-6">{{ 'collections.title' | t }}</h1>
     
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
@@ -14,7 +25,7 @@
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
             <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <h3 class="text-2xl lg:text-3xl w-max">{{ collection.title }}</h3>
+              <span class="text-2xl lg:text-3xl font-thin w-max">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
@@ -22,7 +33,7 @@
         {% for collection in collections %}
           {% unless collection.products.size == 0 %}
             <button class="collection-link text-left w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <h3 class="text-2xl lg:text-3xl w-max">{{ collection.title }}</h3>
+              <span class="text-2xl lg:text-3xl font-thin w-max">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
@@ -31,7 +42,7 @@
   </div>
 
   <!-- Collections Preview -->
-  <div class="lg:w-2/3">
+  <div class="lg:w-3/4">
     <div class="preview-default text-center py-20 h-full flex items-center">
       <div class="max-w-md mx-auto">
         <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,6 +50,7 @@
         </svg>
         <h2 class="text-2xl font-bold text-gray-700 mb-2">Select a Collection</h2>
         <p class="text-gray-500">Click on any collection name to see products</p>
+        <div class="error-message hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm"></div>
       </div>
     </div>
 
@@ -66,92 +78,253 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const collectionLink = document.querySelectorAll('.collection-link');
+  /**
+   * Featured Collections Interactive Handler
+   * Manages collection selection, preview loading, and default behaviors
+   * 
+   * USAGE:
+   * - Auto-selects default collection based on section settings
+   * - Provides public API: window.selectCollection('handle')
+   * - Exposes manager: window.featuredCollectionsManager
+   * 
+   * EXAMPLE:
+   * selectCollection('halloween');  // Select by handle
+   * featuredCollectionsManager.getCurrentCollection();  // Get active collection
+   */
 
-    const previewDefault = document.querySelector('.preview-default');
-    const previewLoading = document.querySelector('.preview-loading');
-    const previewContent = document.querySelector('.preview-content');
-    const productsGrid = document.querySelector('.products-grid');
+  class FeaturedCollectionsManager {
+    constructor() {
+      this.config = {
+        defaultHandle: "{{ section.settings.default_collection.handle | default: section.settings.fallback_collection }}",
+        fallbackHandle: "{{ section.settings.fallback_collection }}",
+        autoSelectDelay: {{ section.settings.auto_select_delay | default: 800 }},
+        loadingDelay: {{ section.settings.loading_animation_duration | default: 400 }},
+        productsToShow: {{ section.settings.products_preview_count | default: 2 }},
+        enableAutoSelect: {{ section.settings.enable_auto_select | default: true }}
+      };
+      
+      this.state = {
+        userHasInteracted: false,
+        autoSelectionComplete: false,
+        isLoading: false
+      };
+      
+      this.elements = {
+        collectionLinks: document.querySelectorAll('.collection-link'),
+        previewDefault: document.querySelector('.preview-default'),
+        previewLoading: document.querySelector('.preview-loading'),
+        previewContent: document.querySelector('.preview-content'),
+        productsGrid: document.querySelector('.products-grid'),
+        viewCollectionBtn: document.querySelector('.view-collection'),
+        collectionTitle: document.querySelector('.collection-title')
+      };
+      
+      this.init();
+    }
     
-    collectionLink.forEach(item => {
-      item.addEventListener('click', async function() {
-        // Remove active state from all items
-        collectionLink.forEach(nav => {
-          nav.classList.remove('border-black', 'bg-gray-100');
-        });
-        
-        // Add active state to clicked item
-        this.classList.add('border-black', 'bg-gray-100');
-        
-        // Get collection data
-        const handle = this.dataset.collectionHandle;
-        const title = this.dataset.collectionTitle;
-        previewLoading.querySelector('span').innerHTML = title;
-        
-        // Show loading
-        previewDefault.classList.add('hidden');
-        previewContent.classList.add('hidden');
-        previewLoading.classList.remove('hidden');
-        
-        try {
-          // Fetch products from collection
-          const response = await fetch(`/collections/${handle}/products.json?limit=4`);
-          const data = await response.json();
-
-          console.log(data);
-        
-          productsGrid.innerHTML = '';
-
-          if (!data.products) console.log('gotcha');
-          
-          data.products.slice(0, 2).forEach(product => {
-            const productCard = createProductCard(product);
-            productsGrid.appendChild(productCard);
-          });
-          
-          // Update the view collection button
-          document.querySelector('.view-collection').href = `/collections/${handle}`;
-          
-          setTimeout(function(){
-            previewLoading.classList.add('hidden');
-            previewContent.classList.remove('hidden');
-          }, 400)
-
-          
-        } catch (error) {
-          console.error('Error loading collection:', error);
-          previewLoading.classList.add('hidden');
-          previewDefault.classList.remove('hidden');
-        }
+    init() {
+      this.bindEvents();
+      this.setupAutoSelection();
+    }
+    
+    bindEvents() {
+      this.elements.collectionLinks.forEach(link => {
+        link.addEventListener('click', (e) => this.handleCollectionClick(e));
       });
-    });
+    }
     
-    function createProductCard(product) {
+    setupAutoSelection() {
+      if (!this.config.enableAutoSelect) return;
+      
+      const defaultHandle = this.config.defaultHandle || this.config.fallbackHandle;
+      
+      if (defaultHandle && defaultHandle !== "") {
+        setTimeout(() => {
+          if (!this.state.userHasInteracted && !this.state.autoSelectionComplete) {
+            this.selectCollection(defaultHandle, true);
+          }
+        }, this.config.autoSelectDelay);
+      }
+    }
+    
+    async handleCollectionClick(event) {
+      event.preventDefault();
+      this.state.userHasInteracted = true;
+      
+      const button = event.currentTarget;
+      const handle = button.dataset.collectionHandle;
+      
+      await this.selectCollection(handle, false);
+    }
+    
+    async selectCollection(handle, isAutoSelect = false) {
+      if (this.state.isLoading) return;
+      
+      const button = document.querySelector(`[data-collection-handle="${handle}"]`);
+      if (!button) {
+        console.warn(`Collection button not found: ${handle}`);
+        return;
+      }
+      
+      if (isAutoSelect) {
+        this.animateAutoSelection(button);
+        this.state.autoSelectionComplete = true;
+      }
+      
+      this.updateActiveState(button);
+      
+      const title = button.dataset.collectionTitle;
+
+      this.showLoadingState(title);
+      
+      try {
+        await this.loadCollectionData(handle, title);
+      } catch (error) {
+        this.handleLoadError(error, handle);
+      }
+    }
+    
+    animateAutoSelection(button) {
+      button.style.transition = "all 0.3s ease";
+      button.style.transform = "scale(1.02)";
+      setTimeout(() => {
+        button.style.transform = "";
+      }, 300);
+    }
+    
+    updateActiveState(activeButton) {
+      this.elements.collectionLinks.forEach(link => {
+        link.classList.remove('border-black', 'bg-gray-100');
+      });
+      
+      activeButton.classList.add('border-black', 'bg-gray-100');
+    }
+    
+    showLoadingState(title) {
+      this.state.isLoading = true;
+    
+      const loadingSpan = this.elements.previewLoading.querySelector('span');
+      if (loadingSpan) loadingSpan.textContent = title;
+      
+      this.elements.previewDefault.classList.add('hidden');
+      this.elements.previewContent.classList.add('hidden');
+      this.elements.previewLoading.classList.remove('hidden');
+    }
+    
+    async loadCollectionData(handle, title) {
+      const response = await fetch(`/collections/${handle}/products.json?limit=4`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch collection: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.products || data.products.length === 0) {
+        throw new Error('No products found in collection');
+      }
+      
+      this.renderCollectionPreview(data, handle, title);
+      
+      setTimeout(() => {
+        this.elements.previewLoading.classList.add('hidden');
+        this.elements.previewContent.classList.remove('hidden');
+        this.state.isLoading = false;
+      }, this.config.loadingDelay);
+    }
+    
+    renderCollectionPreview(data, handle, title) {
+      this.elements.productsGrid.innerHTML = '';
+      
+      if (this.elements.collectionTitle) {
+        this.elements.collectionTitle.textContent = title;
+      }
+      
+      const productsToShow = data.products.slice(0, this.config.productsToShow);
+      productsToShow.forEach(product => {
+        const productCard = this.createProductCard(product);
+        this.elements.productsGrid.appendChild(productCard);
+      });
+      
+      if (this.elements.viewCollectionBtn) {
+        this.elements.viewCollectionBtn.href = `/collections/${handle}`;
+      }
+    }
+    
+    createProductCard(product) {
       const card = document.createElement('div');
       card.className = 'product-card group';
       
-      // Use the first image from the images array
-      const imageUrl = (product.images && product.images[0] && product.images[0].src) ? 
-        product.images[0].src.replace(/(\.[^\.]*$)/, '_400x400$1') : 
-        'https://via.placeholder.com/400x400/f8f9fa/6c757d?text=No+Image';
+      const imageUrl = this.getOptimizedImageUrl(product.images);
       
       card.innerHTML = `
-        <a href="/products/${product.handle}" class="block relative">
+        <a href="/products/${product.handle}" class="block relative" aria-label="View ${product.title}">
           <div class="aspect-square rounded-lg overflow-hidden mb-3">
             <img 
               src="${imageUrl}" 
-              alt="${product.title}"
+              alt="${this.escapeHtml(product.title)}"
               class="w-full h-full object-cover scale-100 group-hover:scale-[1.05] transition-transform duration-700 ease-out will-change-transform"
+              loading="lazy"
             />
           </div>
-          <h3 class="text-3xl absolute bg-white opacity-0 group-hover:opacity-100 pt-5 pl-5 -bottom-6 -left-1 -right-1 group-hover:bottom-0 group-hover:text-gray-600 transition-all ease-out will-change-transform duration-[400ms]">${product.title}</h3>
+          <span class="text-3xl absolute bg-white opacity-0 group-hover:opacity-100 pt-5 pl-5 -bottom-6 -left-1 -right-1 group-hover:bottom-0 group-hover:text-gray-600 transition-all ease-out will-change-transform duration-[400ms]">
+            ${this.escapeHtml(product.title)}
+          </span>
         </a>
       `;
       
       return card;
     }
+    
+    getOptimizedImageUrl(images) {
+      if (images && images[0] && images[0].src) {
+        return images[0].src.replace(/(\.[^\.]*$)/, '_400x400$1');
+      }
+      return 'https://via.placeholder.com/400x400/f8f9fa/6c757d?text=No+Image';
+    }
+    
+    escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    handleLoadError(error, handle) {
+      
+      // Show error state
+      this.elements.previewLoading.classList.add('hidden');
+      this.elements.previewDefault.classList.remove('hidden');
+      this.state.isLoading = false;
+      
+      // Optional: Show user-friendly error message
+      const errorMessage = this.elements.previewDefault.querySelector('.error-message');
+      if (errorMessage) {
+        errorMessage.textContent = 'Unable to load collection. Please try again.';
+        errorMessage.classList.remove('hidden');
+      }
+    }
+    
+    // Public API
+    selectCollectionByHandle(handle) {
+      return this.selectCollection(handle, false);
+    }
+    
+    getCurrentCollection() {
+      const activeButton = document.querySelector('.collection-link.border-black');
+      return activeButton ? activeButton.dataset.collectionHandle : null;
+    }
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    window.featuredCollectionsManager = new FeaturedCollectionsManager();
   });
+  
+  window.selectCollection = function(handle) {
+    if (window.featuredCollectionsManager) {
+      return window.featuredCollectionsManager.selectCollectionByHandle(handle);
+    }
+    console.warn('Featured Collections Manager');
+  };
 </script>
 
 {% schema %}
@@ -162,16 +335,142 @@
   "settings": [
     {
       "type": "header",
-      "content": "Settings"
+      "content": "📚 Collection Settings"
     },
     {
       "type": "collection_list",
       "id": "collection_list",
-      "label": "Collections",
-      "limit": 5
+      "label": "Collections to display",
+      "limit": 8,
+      "info": "Choose up to 8 collections to showcase"
+    },
+    {
+      "type": "collection",
+      "id": "default_collection",
+      "label": "Primary default collection",
+      "info": "This collection will be automatically selected when the page loads"
+    },
+    {
+      "type": "text",
+      "id": "fallback_collection",
+      "label": "Fallback collection handle",
+      "default": "halloween",
+      "placeholder": "halloween",
+      "info": "Backup collection handle if primary default is not found (e.g., 'halloween', 'featured', 'all')"
+    },
+    {
+      "type": "header",
+      "content": "🎛️ Behavior Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_auto_select",
+      "label": "Enable auto-selection",
+      "default": true,
+      "info": "Automatically select default collection on page load"
+    },
+    {
+      "type": "range",
+      "id": "auto_select_delay",
+      "min": 200,
+      "max": 2000,
+      "step": 100,
+      "unit": "ms",
+      "label": "Auto-selection delay",
+      "default": 800,
+      "info": "Delay before auto-selecting default collection"
+    },
+    {
+      "type": "range",
+      "id": "products_preview_count",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Products to preview",
+      "default": 2,
+      "info": "Number of products to show in preview grid"
+    },
+    {
+      "type": "range",
+      "id": "loading_animation_duration",
+      "min": 200,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "label": "Loading animation duration",
+      "default": 400,
+      "info": "Duration of loading transition animations"
+    },
+    {
+      "type": "header",
+      "content": "🎃 Halloween Blood Drop Effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_blood_drop",
+      "label": "Enable gooey blood drop effect",
+      "default": true,
+      "info": "Toggle advanced Halloween blood animation"
+    },
+    {
+      "type": "range",
+      "id": "blood_x_position",
+      "min": 0,
+      "max": 100, 
+      "step": 5,
+      "unit": "%",
+      "label": "Horizontal position",
+      "default": 85
+    },
+    {
+      "type": "range",
+      "id": "blood_y_position", 
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Vertical position",
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "blood_size",
+      "label": "Blood drop size",
+      "options": [
+        {"value": "small", "label": "Small"},
+        {"value": "medium", "label": "Medium"}, 
+        {"value": "large", "label": "Large"}
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "color",
+      "id": "blood_color",
+      "label": "Blood drop color", 
+      "default": "#D50000"
+    },
+    {
+      "type": "range",
+      "id": "goo_particles",
+      "min": 20,
+      "max": 120,
+      "step": 10,
+      "label": "Goo particles",
+      "default": 80,
+      "info": "Number of animated particles (affects performance)"
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Animation speed",
+      "default": 5,
+      "info": "Duration of one animation cycle"
     }
   ],
   "presets": [{ "name": "Featured Collections" }]
-
 }
 {% endschema %}

@@ -1,58 +1,23 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
   <head>
-    {% # Inlined CSS Variables %}
+    {% # Critical rendering path - load in order %}
     {% render 'css-variables' %}
+    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'splide.min.css' | asset_url }}">
+    <script defer src="{{ 'tailwind-browser.min.js' | asset_url }}"></script>
 
-    {% # Load Tailwind CSS %}
-    <script defer src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script async src="{{ 'gsap.min.js' | asset_url }}"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script>
-    
-    {% # Social, title, etc. %}
+    {% # Meta tags and favicon %}
     {% render 'meta-tags' %}
-      {% if settings.favicon %}<link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">{% endif %}
-
+    {% if settings.favicon %}<link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">{% endif %}
 
     {{ content_for_header }}
 
-    <!-- CART FORM INTERCEPTOR -->
-    <script>
-    document.addEventListener("submit", function(e) {
-      console.log("Form submitted to:", e.target.action);
-      if (e.target.action && e.target.action.includes("cart/add")) {
-        console.log("INTERCEPTING CART FORM!");
-        e.preventDefault();
-        handleCartSubmission(e.target);
-        return false;
-      }
-    }, true);
-
-    async function handleCartSubmission(form) {
-      const formData = new FormData(form);
-      const button = form.querySelector('[type="submit"]');
-      if (button) { button.textContent = "Adding..."; button.disabled = true; }
-      try {
-        const response = await fetch("/cart/add.json", { method: "POST", body: formData });
-        if (response.ok) {
-          console.log("✅ Added to cart!");
-          setTimeout(() => {
-            if (window.cartDrawer) { window.cartDrawer.open(); } else { alert("Item added to cart!"); }
-          }, 200);
-        }
-      } catch (error) { console.error("❌ Error:", error); }
-      finally { if (button) { button.textContent = "Add to cart"; button.disabled = false; } }
-    }
-    </script>
-
-    {% comment %} <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MorphSVGPlugin.min.js"></script> {% endcomment %}
-    
-
-    {% comment %} Main JS - loads after HTML parsing but before DOMContentLoaded {% endcomment %}
+    {% # Early JavaScript for animations %}
+    <script src="{{ 'gsap.min.js' | asset_url }}"></script>
+    <script src="{{ 'morphsvg-plugin.min.js' | asset_url }}"></script>
     <script defer src="{{ 'main.js' | asset_url }}" type="module"></script>
 
-    {% # Critical CSS %}
-    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
     
     <style>
       body {
@@ -79,7 +44,39 @@
     
     {% sections 'footer-group' %}
     
-    {% comment %} Cart Drawer {% endcomment %}
     {% render 'cart-drawer' %}
-  </body>
+    <script defer src="{{ 'splide.min.js' | asset_url }}"></script>
+
+    {% # Cart form interceptor - handles AJAX submissions %}
+    <script>
+      document.addEventListener("submit", function(e) {
+        if (e.target.action && e.target.action.includes("cart/add")) {
+          e.preventDefault();
+          handleCartSubmission(e.target);
+          return false;
+        }
+      }, true);
+
+      async function handleCartSubmission(form) {
+        const formData = new FormData(form);
+        const button = form.querySelector('[type="submit"]');
+        if (button) { button.textContent = "Adding..."; button.disabled = true; }
+        try {
+          const response = await fetch("/cart/add.json", { method: "POST", body: formData });
+          if (response.ok) {
+            setTimeout(() => {
+              if (window.cartDrawer) { window.cartDrawer.open(); } else { alert("Item added to cart!"); }
+            }, 200);
+          } else {
+            alert("Sorry, this item could not be added to your cart.");
+          }
+        } catch (error) {
+          alert("Sorry, there was a problem adding this item to your cart. Please try again.");
+        } finally {
+          if (button) { button.textContent = "Add to cart"; button.disabled = false; }
+        }
+      }
+    </script>
+
+</body>
 </html>

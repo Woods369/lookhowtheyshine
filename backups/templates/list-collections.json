@@ -1,13 +1,11 @@
 {
   "sections": {
     "main": {
-      "type": "collection",
+      "type": "search",
       "settings": {
         "products_per_page": 24,
         "enable_filtering": true,
-        "enable_sorting": true,
-        "enable_search": false,
-        "show_collection_description": true
+        "enable_sorting": true
       }
     }
   },

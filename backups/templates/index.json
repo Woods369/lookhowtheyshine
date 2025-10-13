@@ -1,0 +1,50 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "video_background_FBF7tQ": {
+      "type": "video-background",
+      "name": "Video Background",
+      "settings": {
+        "video": "shopify://files/videos/homepage video carousel.mp4",
+        "description": ""
+      }
+    },
+    "featured_collections_NMxBq8": {
+      "type": "featured-collections",
+      "name": "Featured Collections",
+      "settings": {
+        "collection_list": [
+          "advent-calendar",
+          "christmas",
+          "halloween",
+          "heart",
+          "trees"
+        ]
+      }
+    },
+    "newsletter_nqKmeU": {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "settings": {
+        "heading": "Stay in the Loop",
+        "subheading": "Be the first to know about new arrivals and exclusive offers",
+        "button_text": "Subscribe",
+        "success_message": "Thank you for subscribing!",
+        "parallax_speed": 1.2
+      }
+    }
+  },
+  "order": [
+    "video_background_FBF7tQ",
+    "featured_collections_NMxBq8",
+    "newsletter_nqKmeU"
+  ]
+}
