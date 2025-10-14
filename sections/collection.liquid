@@ -5,32 +5,31 @@
 
 {% liquid
   # Context detection and data source assignment
+  assign show_search = true
+
   if template.name == 'search'
     assign is_search_page = true
     assign products = search.results
     assign products_count = search.results_count
     assign page_title = 'Search Results'
     assign container_id = 'search-results'
-    assign show_search = true
   elsif collection.handle == 'all'
     assign is_all_products = true
     assign products = collections.all.products
     assign products_count = collections.all.products_count
     assign page_title = 'All Products'
     assign container_id = 'all-products-shop'
-    assign show_search = true
   else
     assign is_collection_page = true
     assign products = collection.products
     assign products_count = collection.products_count
     assign page_title = collection.title
     assign container_id = 'collection-with-filters'
-    assign show_search = section.settings.enable_search
+
   endif
 %}
 
 <div class="collection-container bg-white pt-40" id="{{ container_id }}" data-section-id="{{ section.id }}" data-collection-handle="{{ collection.handle | default: 'search' }}">
-  
   <!-- Search Bar (Conditional) -->
   {% if show_search %}
     <div class="search-bar-container bg-gray-50 border-b border-gray-200 py-4">
@@ -64,7 +63,6 @@
 
   <!-- Main Content Area -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
     <!-- Mobile Filter Button -->
     {% if section.settings.enable_filtering and is_collection_page %}
       <div class="lg:hidden mb-6">
@@ -83,14 +81,15 @@
 
     <!-- Two Column Layout -->
     <div class="grid grid-cols-1 {% if section.settings.enable_filtering and is_collection_page %}lg:grid-cols-12{% endif %} gap-8">
-      
+      {% unless is_all_products %}
+        <a href="{{ routes.all_products_collection_url }}" class="w-max underline underline-offset-3 hover:underline-offset-2 transition-all duration-400">
+          {{ '404.back_to_shopping' | t }}
+        </a>
+      {% endunless %}
+
       <!-- Sidebar Filters (Collection pages only) -->
       {% if section.settings.enable_filtering and is_collection_page %}
-        <aside 
-          class="lg:col-span-4 xl:col-span-3 sticky top-24" 
-          id="sidebar-filters"
-          style="display: none; height: fit-content;"
-        >
+        <aside class="lg:col-span-4 xl:col-span-3 sticky top-40" id="sidebar-filters" style="display: none; height: fit-content;" >
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             
             <!-- Filter Form -->
@@ -105,22 +104,17 @@
                   </svg>
                 </div>
                 <div class="collapse-content" id="sort-filter">
-                <select 
-                  name="sort_by" 
-                  id="sort-by" 
-                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                >
-                  <option value="manual">Featured</option>
-                  <option value="best-selling">Best Selling</option>
-                  <option value="title-ascending">A-Z</option>
-                  <option value="title-descending">Z-A</option>
-                  <option value="price-ascending">Price: Low to High</option>
-                  <option value="price-descending">Price: High to Low</option>
-                  <option value="created-descending">Newest</option>
-                  <option value="created-ascending">Oldest</option>
-                </select>
+                  <select class="w-full">
+                    {%- for option in collection.sort_options %}
+                      <option value="{{ option.value }}" {%- if option.value == sort_by %} selected="selected" {%- endif %} >
+                        {{ option.name }}
+                      </option>
+                    {% endfor -%}
+                  </select>
                 </div>
               </div>
+
+              {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
 
               <!-- Dynamic Filters (Native Shopify) -->
               {% if collection.filters.size > 0 %}
@@ -230,7 +224,7 @@
             <select 
               name="sort_by" 
               id="sort-by-desktop" 
-              class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="appearance-none rounded-md border-gray-300 shadow-sm py-3 px-5 focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="manual">Featured</option>
               <option value="best-selling">Best Selling</option>
@@ -359,6 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize - Sort open by default, filters closed
   const sortFilter = document.getElementById('sort-filter');
+
   if (sortFilter) {
     sortFilter.classList.remove('hidden');
     const sortToggle = document.querySelector('[data-collapse-toggle="sort-filter"]');

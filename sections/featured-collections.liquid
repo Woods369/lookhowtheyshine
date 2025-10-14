@@ -3,37 +3,44 @@
   collections with an interactive sidebar and preview area.
 {% endcomment %}
 
+{% liquid
+  assign heading = "text-5xl lg:text-6xl mb-6 w-max font-black"
+  assign collection_button = "collection-link w-max text-right p-2 rounded-lg lg:py-10 lg:px-20 hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-8"
+  assign collection_button_text = "flex lg:block text-md lg:text-8xl tracking-tight font-black w-max text-right"
+%}
+
+
 <div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20 relative">
   
   <!-- Halloween Blood Drop Effect -->
   {% if section.settings.enable_blood_drop %}
     {% render 'blood-drop',
-       x_position: section.settings.blood_x_position,
-       y_position: section.settings.blood_y_position,
-       size: section.settings.blood_size,
-       color: section.settings.blood_color,
-       goo_particles: section.settings.goo_particles,
-       speed: section.settings.animation_speed %}
+      x_position: section.settings.blood_x_position,
+      y_position: section.settings.blood_y_position,
+      size: section.settings.blood_size,
+      color: section.settings.blood_color,
+      goo_particles: section.settings.goo_particles,
+      speed: section.settings.animation_speed %}
   {% endif %}
   
-  <!-- Collections Sidebar -->
+  <!-- Collections Navigation -->
   <div class="lg:w-1/4">
-    <h1 class="text-5xl lg:text-4xl mb-6">{{ 'collections.title' | t }}</h1>
+    <h1 class="{{ heading }}">{{ 'collections.title' | t }}</h1>
     
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
       {% if section.settings.collection_list %}
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
-            <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <span class="text-2xl lg:text-3xl font-thin w-max">{{ collection.title }}</span>
+            <button class="{{ collection_button }}" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
+              <span class="{{ collection_button_text }}">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
       {% else  %}
         {% for collection in collections %}
           {% unless collection.products.size == 0 %}
-            <button class="collection-link text-left w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <span class="text-2xl lg:text-3xl font-thin w-max">{{ collection.title }}</span>
+            <button class="{{ collection_button }}" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
+              <span class="{{ collection_button_text }}">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
@@ -61,10 +68,10 @@
 
     <!-- Preview Content -->
     <div class="preview-content hidden">
-      <div class="collection-header mb-6 flex flex-wrap justify-between items-start">
-        <h2 class="collection-title text-4xl h-max"></h2>
-        <div class="text-center">
-          <a href="#" class="group view-collection text-black transition-all duration-300 text-2xl pe-2">
+      <div class="collection-header mb-6 flex flex-wrap justify-end items-start">
+        <h2 class="collection-title hidden text-6xl h-max"></h2>
+        <div class="text-right">
+          <a href="#" class="group view-collection text-black transition-all duration-300 text-2xl lg:text-3xl mb-6 w-max font-thin pe-2">
             View Full Collection <span class="relative left-0 group-hover:left-2 transition-all duration-[400ms] will-change-[left]">→</span>
           </a>
         </div>
