@@ -8,5 +8,12 @@
  * ------------------------------------------------------------
  */
 {
-  "current": {}
+  "current": {
+    "type_heading_font": "poppins_n3",
+    "type_body_font": "poppins_n1",
+    "background_color": "#ffffff",
+    "foreground_color": "#070202",
+    "input_corner_radius": 0,
+    "content_for_index": []
+  }
 }

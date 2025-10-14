@@ -1,0 +1,558 @@
+{% doc %}
+  @prompt
+    Sign up page to collect first and second names, email and permission to subscribe to our marketing
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-signup-page-{{ ai_gen_id }} {
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.padding }}px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-signup-page__header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .ai-signup-page__title-{{ ai_gen_id }} {
+    font-family: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
+    font-weight: {{ settings.type_heading_font.weight }};
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 16px;
+    line-height: 1.2;
+  }
+
+  .ai-signup-page__subtitle-{{ ai_gen_id }} {
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-weight: {{ settings.type_body_font.weight }};
+    font-size: {{ block.settings.subtitle_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    opacity: 0.8;
+    line-height: 1.4;
+  }
+
+  .ai-signup-page__form-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-signup-page__field-group-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+  }
+
+  .ai-signup-page__field-{{ ai_gen_id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-signup-page__field--full-{{ ai_gen_id }} {
+    width: 100%;
+  }
+
+  .ai-signup-page__label-{{ ai_gen_id }} {
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-weight: 500;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+  }
+
+  .ai-signup-page__input-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-size: 16px;
+    background-color: {{ block.settings.input_background_color }};
+    color: {{ block.settings.text_color }};
+    transition: border-color 0.3s ease;
+  }
+
+  .ai-signup-page__input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.accent_color }};
+    box-shadow: 0 0 0 2px {{ block.settings.accent_color }}33;
+  }
+
+  .ai-signup-page__checkbox-field-{{ ai_gen_id }} {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .ai-signup-page__checkbox-{{ ai_gen_id }} {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: {{ block.settings.accent_color }};
+    cursor: pointer;
+  }
+
+  .ai-signup-page__checkbox-label-{{ ai_gen_id }} {
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    line-height: 1.4;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .ai-signup-page__button-{{ ai_gen_id }} {
+    padding: 16px 32px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 8px;
+  }
+
+  .ai-signup-page__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-signup-page__button-{{ ai_gen_id }}:focus {
+    outline: 2px solid {{ block.settings.accent_color }};
+    outline-offset: 2px;
+  }
+
+  .ai-signup-page__success-{{ ai_gen_id }} {
+    background-color: {{ block.settings.success_color }}22;
+    border: 1px solid {{ block.settings.success_color }};
+    color: {{ block.settings.success_color }};
+    padding: 16px;
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-size: 14px;
+    margin-top: 16px;
+  }
+
+  .ai-signup-page__error-{{ ai_gen_id }} {
+    background-color: {{ block.settings.error_color }}22;
+    border: 1px solid {{ block.settings.error_color }};
+    color: {{ block.settings.error_color }};
+    padding: 16px;
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    font-size: 14px;
+    margin-top: 16px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-signup-page__field-group-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ai-signup-page-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding | times: 0.7 }}px;
+    }
+
+    .ai-signup-page__title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.8 }}px;
+    }
+
+    .ai-signup-page__subtitle-{{ ai_gen_id }} {
+      font-size: {{ block.settings.subtitle_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-signup-page-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-signup-page__header-{{ ai_gen_id }}">
+    {% if block.settings.title != blank %}
+      <h1 class="ai-signup-page__title-{{ ai_gen_id }}">{{ block.settings.title }}</h1>
+    {% endif %}
+    {% if block.settings.subtitle != blank %}
+      <p class="ai-signup-page__subtitle-{{ ai_gen_id }}">{{ block.settings.subtitle }}</p>
+    {% endif %}
+  </div>
+
+  {% form 'customer' %}
+    <div class="ai-signup-page__form-{{ ai_gen_id }}">
+      <div class="ai-signup-page__field-group-{{ ai_gen_id }}">
+        <div class="ai-signup-page__field-{{ ai_gen_id }}">
+          <label for="first-name-{{ ai_gen_id }}" class="ai-signup-page__label-{{ ai_gen_id }}">
+            {{ block.settings.first_name_label }}
+          </label>
+          <input
+            type="text"
+            id="first-name-{{ ai_gen_id }}"
+            name="customer[first_name]"
+            class="ai-signup-page__input-{{ ai_gen_id }}"
+            value="{{ form.first_name }}"
+            placeholder="{{ block.settings.first_name_placeholder }}"
+            required
+            autocomplete="given-name"
+          >
+        </div>
+
+        <div class="ai-signup-page__field-{{ ai_gen_id }}">
+          <label for="last-name-{{ ai_gen_id }}" class="ai-signup-page__label-{{ ai_gen_id }}">
+            {{ block.settings.last_name_label }}
+          </label>
+          <input
+            type="text"
+            id="last-name-{{ ai_gen_id }}"
+            name="customer[last_name]"
+            class="ai-signup-page__input-{{ ai_gen_id }}"
+            value="{{ form.last_name }}"
+            placeholder="{{ block.settings.last_name_placeholder }}"
+            required
+            autocomplete="family-name"
+          >
+        </div>
+      </div>
+
+      <div class="ai-signup-page__field-{{ ai_gen_id }} ai-signup-page__field--full-{{ ai_gen_id }}">
+        <label for="email-{{ ai_gen_id }}" class="ai-signup-page__label-{{ ai_gen_id }}">
+          {{ block.settings.email_label }}
+        </label>
+        <input
+          type="email"
+          id="email-{{ ai_gen_id }}"
+          name="customer[email]"
+          class="ai-signup-page__input-{{ ai_gen_id }}"
+          value="{{ form.email }}"
+          placeholder="{{ block.settings.email_placeholder }}"
+          required
+          autocomplete="email"
+          {% if form.errors %}
+            aria-invalid="true"
+            aria-describedby="signup-error-{{ ai_gen_id }}"
+          {% endif %}
+        >
+      </div>
+
+      <div class="ai-signup-page__field-{{ ai_gen_id }} ai-signup-page__field--full-{{ ai_gen_id }}">
+        <label for="password-{{ ai_gen_id }}" class="ai-signup-page__label-{{ ai_gen_id }}">
+          {{ block.settings.password_label }}
+        </label>
+        <input
+          type="password"
+          id="password-{{ ai_gen_id }}"
+          name="customer[password]"
+          class="ai-signup-page__input-{{ ai_gen_id }}"
+          placeholder="{{ block.settings.password_placeholder }}"
+          required
+          autocomplete="new-password"
+          minlength="6"
+        >
+      </div>
+
+      {% if block.settings.show_marketing_consent %}
+        <div class="ai-signup-page__checkbox-field-{{ ai_gen_id }}">
+          <input
+            type="checkbox"
+            id="marketing-consent-{{ ai_gen_id }}"
+            name="customer[accepts_marketing]"
+            class="ai-signup-page__checkbox-{{ ai_gen_id }}"
+            value="1"
+            {% if block.settings.marketing_consent_required %}required{% endif %}
+          >
+          <label for="marketing-consent-{{ ai_gen_id }}" class="ai-signup-page__checkbox-label-{{ ai_gen_id }}">
+            {{ block.settings.marketing_consent_text }}
+            {% if block.settings.marketing_consent_required %}
+              <span style="color: {{ block.settings.error_color }};">*</span>
+            {% endif %}
+          </label>
+        </div>
+      {% endif %}
+
+      <button type="submit" class="ai-signup-page__button-{{ ai_gen_id }}">
+        {{ block.settings.button_text }}
+      </button>
+
+      {% if form.posted_successfully? %}
+        <div class="ai-signup-page__success-{{ ai_gen_id }}">
+          {{ block.settings.success_message }}
+        </div>
+      {% endif %}
+
+      {% if form.errors %}
+        <div id="signup-error-{{ ai_gen_id }}" class="ai-signup-page__error-{{ ai_gen_id }}">
+          {% for field in form.errors %}
+            <p>{{ field | capitalize }}: {{ form.errors.messages[field] }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endform %}
+</div>
+
+{% schema %}
+{
+  "name": "Customer signup page",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Create your account"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Join our community and get exclusive access to new products and special offers."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Create account"
+    },
+    {
+      "type": "textarea",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Welcome! Your account has been created successfully. Please check your email to verify your account."
+    },
+    {
+      "type": "header",
+      "content": "Form labels"
+    },
+    {
+      "type": "text",
+      "id": "first_name_label",
+      "label": "First name label",
+      "default": "First name"
+    },
+    {
+      "type": "text",
+      "id": "first_name_placeholder",
+      "label": "First name placeholder",
+      "default": "Enter your first name"
+    },
+    {
+      "type": "text",
+      "id": "last_name_label",
+      "label": "Last name label",
+      "default": "Last name"
+    },
+    {
+      "type": "text",
+      "id": "last_name_placeholder",
+      "label": "Last name placeholder",
+      "default": "Enter your last name"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "label": "Email label",
+      "default": "Email address"
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "Email placeholder",
+      "default": "Enter your email address"
+    },
+    {
+      "type": "text",
+      "id": "password_label",
+      "label": "Password label",
+      "default": "Password"
+    },
+    {
+      "type": "text",
+      "id": "password_placeholder",
+      "label": "Password placeholder",
+      "default": "Create a password"
+    },
+    {
+      "type": "header",
+      "content": "Marketing consent"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_marketing_consent",
+      "label": "Show marketing consent",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "marketing_consent_text",
+      "label": "Marketing consent text",
+      "default": "I would like to receive marketing emails about new products, sales, and exclusive offers."
+    },
+    {
+      "type": "checkbox",
+      "id": "marketing_consent_required",
+      "label": "Make marketing consent required",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 400,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 20,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "input_background_color",
+      "label": "Input background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#007acc"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#005a99"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "success_color",
+      "label": "Success color",
+      "default": "#28a745"
+    },
+    {
+      "type": "color",
+      "id": "error_color",
+      "label": "Error color",
+      "default": "#dc3545"
+    },
+    {
+      "type": "header",
+      "content": "Input styling"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "label": "Input border radius",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer signup page"
+    }
+  ]
+}
+{% endschema %}

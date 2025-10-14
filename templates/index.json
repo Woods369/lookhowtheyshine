@@ -27,7 +27,20 @@
           "halloween",
           "heart",
           "trees"
-        ]
+        ],
+        "default_collection": "",
+        "fallback_collection": "halloween",
+        "enable_auto_select": true,
+        "auto_select_delay": 200,
+        "products_preview_count": 2,
+        "loading_animation_duration": 500,
+        "enable_blood_drop": false,
+        "blood_x_position": 85,
+        "blood_y_position": 10,
+        "blood_size": "medium",
+        "blood_color": "#d50000",
+        "goo_particles": 80,
+        "animation_speed": 5
       }
     },
     "newsletter_nqKmeU": {

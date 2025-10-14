@@ -1,0 +1,68 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "page",
+      "settings": {}
+    },
+    "17604747821bf29dc0": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_bc2f8c6_nU3F9r": {
+          "type": "ai_gen_block_bc2f8c6",
+          "settings": {
+            "title": "We're pleased you're here!",
+            "subtitle": "Sign up and receive the latest news \n( don't worry we won't spam )",
+            "button_text": "J O I N",
+            "success_message": "Welcome! Your account has been created successfully. Please check your email to verify your account.",
+            "first_name_label": "First name",
+            "first_name_placeholder": "Enter your first name",
+            "last_name_label": "Last name",
+            "last_name_placeholder": "Enter your last name",
+            "email_label": "Email address",
+            "email_placeholder": "Enter your email address",
+            "password_label": "Password",
+            "password_placeholder": "Create a password",
+            "show_marketing_consent": true,
+            "marketing_consent_text": "I would like to receive marketing emails about new products, sales, and exclusive offers.",
+            "marketing_consent_required": false,
+            "max_width": 780,
+            "padding": 20,
+            "border_radius": 20,
+            "title_size": 48,
+            "subtitle_size": 17,
+            "background_color": "#ffffff",
+            "text_color": "#333333",
+            "accent_color": "#28a745",
+            "input_background_color": "#ffffff",
+            "input_border_color": "#dddddd",
+            "button_color": "#000000",
+            "button_hover_color": "#005a99",
+            "button_text_color": "#ffffff",
+            "success_color": "#28a745",
+            "error_color": "#dc3545",
+            "input_border_radius": 4,
+            "button_border_radius": 4
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_bc2f8c6_nU3F9r"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "17604747821bf29dc0"
+  ]
+}
