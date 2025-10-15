@@ -64,8 +64,20 @@
       <div class="collection-header mb-6 flex flex-wrap justify-between items-start">
         <h2 class="collection-title text-4xl h-max"></h2>
         <div class="text-center">
-          <a href="#" class="group view-collection text-black transition-all duration-300 text-2xl pe-2">
-            View Full Collection <span class="relative left-0 group-hover:left-2 transition-all duration-[400ms] will-change-[left]">→</span>
+          <a href="#" class="group eyes-link view-collection text-black transition-all duration-300 text-2xl lg:text-2xl font-thin flex items-center justify-space-between pe-2">
+            View Full Collection 
+            <span class="eyes group relative flex left-2 transition-all duration-[400ms] w-[24px] h-[24px] font-light will-change-[left]">
+              <svg class="absolute h-max right-0 duration-300" width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.2" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000">
+                <path id="right-eyelid" d="M19.5 16L17.0248 12.6038" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path id="middle-eyelid" d="M12 17.5V14" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path id="left-eyelid" d="M4.5 16L6.96895 12.6124" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path id="eyelid-closed" d="M3 8C6.6 16 17.4 16 21 8" stroke="#4c4c4c" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              <svg class="absolute h-hax right-0 opacity-0 duration-300" width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000" stroke-width="1.2">
+                <path id="eyelid-open" class="hidden" d="M3 13C6.6 5 17.4 5 21 13" stroke="#6f6f6f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path class="eyeline-open hidden" d="M12 17C10.3431 17 9 15.6569 9 14C9 12.3431 10.3431 11 12 11C13.6569 11 15 12.3431 15 14C15 15.6569 13.6569 17 12 17Z" fill="#000000" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>          
           </a>
         </div>
       </div>
@@ -150,21 +162,15 @@
     async handleCollectionClick(event) {
       event.preventDefault();
       this.state.userHasInteracted = true;
-      
       const button = event.currentTarget;
       const handle = button.dataset.collectionHandle;
-      
       await this.selectCollection(handle, false);
     }
     
     async selectCollection(handle, isAutoSelect = false) {
       if (this.state.isLoading) return;
-      
       const button = document.querySelector(`[data-collection-handle="${handle}"]`);
-      if (!button) {
-        console.warn(`Collection button not found: ${handle}`);
-        return;
-      }
+      if (!button) return;
       
       if (isAutoSelect) {
         this.animateAutoSelection(button);
