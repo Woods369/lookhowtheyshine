@@ -9,6 +9,64 @@
  */
 {
   "sections": {
+    "17604779066c67886c": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_3aa3f70_nBKPya": {
+          "type": "ai_gen_block_3aa3f70",
+          "settings": {
+            "popup_delay": 1,
+            "show_once": false,
+            "show_placeholder_image": false,
+            "heading": "We're pleased you're here!",
+            "subheading": "<p>Get exclusive offers and updates delivered to your inbox</p>",
+            "button_text": "Subscribe",
+            "disclaimer": "<p>By subscribing, you agree to our privacy policy</p>",
+            "success_message": "Thank you for subscribing!",
+            "collect_name": true,
+            "name_placeholder": "Your name",
+            "email_placeholder": "Your email address",
+            "collect_phone": false,
+            "phone_placeholder": "Your phone number",
+            "use_klaviyo": false,
+            "klaviyo_form_id": "",
+            "modal_max_width": 500,
+            "modal_border_radius": 12,
+            "content_padding": 40,
+            "text_alignment": "center",
+            "mobile_fullscreen": false,
+            "overlay_opacity": 0.7,
+            "modal_background_color": "#ffffff",
+            "close_button_color": "#666666",
+            "heading_color": "#000000",
+            "subheading_color": "#666666",
+            "disclaimer_color": "#999999",
+            "success_color": "#008060",
+            "error_color": "#D82C0D",
+            "heading_size": 28,
+            "subheading_size": 16,
+            "disclaimer_size": 12,
+            "input_background_color": "#ffffff",
+            "input_text_color": "#000000",
+            "input_border_color": "#dddddd",
+            "input_focus_color": "#000000",
+            "input_placeholder_color": "#999999",
+            "input_border_radius": 6,
+            "button_background_color": "#000000",
+            "button_hover_color": "#333333",
+            "button_text_color": "#ffffff",
+            "button_font_size": 16,
+            "button_border_radius": 6,
+            "image_border_radius": 8
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_3aa3f70_nBKPya"
+      ],
+      "settings": {}
+    },
     "video_background_FBF7tQ": {
       "type": "video-background",
       "name": "Video Background",
@@ -56,6 +114,7 @@
     }
   },
   "order": [
+    "17604779066c67886c",
     "video_background_FBF7tQ",
     "featured_collections_NMxBq8",
     "newsletter_nqKmeU"
