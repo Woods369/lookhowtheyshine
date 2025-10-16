@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
   <head>
-    {% # Critical rendering path - load in order %}
+    {% comment %} <script async src="{{ 'tailwind-browser.min.js' | asset_url }}"></script> {% endcomment %}
+     <link rel="stylesheet" href="{{ 'tailwind.css' | asset_url }}">
     {% render 'css-variables' %}
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
     <link rel="stylesheet" href="{{ 'splide.min.css' | asset_url }}">
-    <script defer src="{{ 'tailwind-browser.min.js' | asset_url }}"></script>
+
 
     {% # Meta tags and favicon %}
     {% render 'meta-tags' %}
@@ -18,27 +19,18 @@
     <script src="{{ 'morphsvg-plugin.min.js' | asset_url }}"></script>
     <script defer src="{{ 'main.js' | asset_url }}" type="module"></script>
 
-    
     <style>
-      body {
-        padding-bottom: 200px;
-      }
-
       body:has( > .main-content > header.open ) {
         max-height: 100svh;
         overflow: hidden;
       }
-      
-      .main-content {
-        min-height: 100vh;
-      }
-    
     </style>
   </head>
   <script async type='text/javascript' src='https://static.klaviyo.com/onsite/js/TNPuJF/klaviyo.js?company_id=TNPuJF'></script>
-<script type="text/javascript">
-//Initialize Klaviyo object on page load
-!function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}(); </script>
+  <script type="text/javascript">
+
+  //Initialize Klaviyo object on page load
+  !function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}(); </script>
 
   <body class="bg-white pb-[200px]{% if template.name == 'index' %} home {% endif %}">
     <div class="main-content z-20 relative">
