@@ -11,9 +11,9 @@
     {% endif %}
   </nav>
   
-  <div class="footer__payment">
+  <div class="footer__payment ">
     {% if section.settings.show_payment_icons %}
-      <div class="flex space-x-2 mb-4">
+      <div class="flex flex-wrap justify-center px-20 py-50 space-2 md:flew-row space-x-2 mb-4">
         {% for type in shop.enabled_payment_types %}
           {{ type | payment_type_svg_tag: class: 'h-6 w-10 fill-current' }}
         {% endfor %}

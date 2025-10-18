@@ -8,24 +8,25 @@
   <!-- Halloween Blood Drop Effect -->
   {% if section.settings.enable_blood_drop %}
     {% render 'blood-drop',
-       x_position: section.settings.blood_x_position,
-       y_position: section.settings.blood_y_position,
-       size: section.settings.blood_size,
-       color: section.settings.blood_color,
-       goo_particles: section.settings.goo_particles,
-       speed: section.settings.animation_speed %}
+      x_position: section.settings.blood_x_position,
+      y_position: section.settings.blood_y_position,
+      size: section.settings.blood_size,
+      color: section.settings.blood_color,
+      goo_particles: section.settings.goo_particles,
+      speed: section.settings.animation_speed
+    %}
   {% endif %}
   
   <!-- Collections Sidebar -->
   <div class="lg:w-1/4">
-    <h1 class="text-5xl lg:text-4xl mb-6">{{ 'collections.title' | t }}</h1>
+    <h1 class="text-md lg:text-4xl mb-6">{{ 'collections.title' | t }}</h1>
     
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
       {% if section.settings.collection_list %}
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
             <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <span class="text-2xl lg:text-3xl font-thin w-max">{{ collection.title }}</span>
+              <span class="text-sm lg:text-3xl font-thin w-max block md:flex">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
@@ -62,9 +63,16 @@
     <!-- Preview Content -->
     <div class="preview-content hidden">
       <div class="collection-header mb-6 flex flex-wrap justify-between items-start">
-        <h2 class="collection-title text-4xl h-max"></h2>
+        <h2 class="hidden md:flex collection-title text-sm md:text-4xl h-max"></h2>
         <div class="text-center">
-          <a href="#" class="group eyes-link view-collection text-black transition-all duration-300 text-2xl lg:text-2xl font-thin flex items-center justify-space-between pe-2">
+        </div>
+      </div>
+
+      <!-- Products Grid (2x2) -->
+      <div class="products-grid grid grid-cols-2 gap-6 mb-6">
+      </div>
+
+        <a href="#" class="flex md:hidden group eyes-link view-collection text-black transition-all duration-300 text-sm lg:text-2xl font-thin flex items-center justify-center pe-2">
             View Full Collection 
             <span class="eyes group relative flex left-2 transition-all duration-[400ms] w-[24px] h-[24px] font-light will-change-[left]">
               <svg class="absolute h-max right-0 duration-300" width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.2" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000">
@@ -73,18 +81,14 @@
                 <path id="left-eyelid" d="M4.5 16L6.96895 12.6124" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
                 <path id="eyelid-closed" d="M3 8C6.6 16 17.4 16 21 8" stroke="#4c4c4c" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
+
+                <div if ( )
               <svg class="absolute h-hax right-0 opacity-0 duration-300" width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000" stroke-width="1.2">
                 <path id="eyelid-open" class="hidden" d="M3 13C6.6 5 17.4 5 21 13" stroke="#6f6f6f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
                 <path class="eyeline-open hidden" d="M12 17C10.3431 17 9 15.6569 9 14C9 12.3431 10.3431 11 12 11C13.6569 11 15 12.3431 15 14C15 15.6569 13.6569 17 12 17Z" fill="#000000" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
             </span>          
           </a>
-        </div>
-      </div>
-
-      <!-- Products Grid (2x2) -->
-      <div class="products-grid grid grid-cols-2 gap-6 mb-6">
-      </div>
     </div>
   </div>
 </div>
