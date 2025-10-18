@@ -1,10 +1,14 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
   <head>
-    {% comment %} <script async src="{{ 'tailwind-browser.min.js' | asset_url }}"></script> {% endcomment %}
-     <link rel="stylesheet" href="{{ 'tailwind.css' | asset_url }}">
+    <script defer src="{{ 'tailwind-browser.min.js' | asset_url }}"></script>
+    {% comment %} <link rel="stylesheet" href="{{ 'output.css' | asset_url }}"> {% endcomment %}
+    {% comment %} <link rel="stylesheet" href="{{ 'tailwind.css' | asset_url }}"> {% endcomment %}
     {% render 'css-variables' %}
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
+
+    <script src="{{ 'tailwind-browser.min.js' | asset_url }}"></script>
+
     <link rel="stylesheet" href="{{ 'splide.min.css' | asset_url }}">
 
 
@@ -22,7 +26,9 @@
     <style>
       body:has( > .main-content > header.open ) {
         max-height: 100svh;
+        
         overflow: hidden;
+
       }
     </style>
   </head>
