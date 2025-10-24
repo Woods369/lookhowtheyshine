@@ -5,7 +5,7 @@
     {% comment %} <link rel="stylesheet" href="{{ 'output.css' | asset_url }}"> {% endcomment %}
     {% comment %} <link rel="stylesheet" href="{{ 'tailwind.css' | asset_url }}"> {% endcomment %}
     {% render 'css-variables' %}
-    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
+    <link rel="preload" href="{{ 'critical.css' | asset_url }}">
 
     <script src="{{ 'tailwind-browser.min.js' | asset_url }}"></script>
 
@@ -53,9 +53,9 @@
     <script>
       document.addEventListener("submit", function(e) {
         if (e.target.action && e.target.action.includes("cart/add")) {
-          e.preventDefault();
-          handleCartSubmission(e.target);
-          return false;
+          // e.preventDefault();
+          // handleCartSubmission(e.target);
+          // return false;
         }
       }, true);
 
@@ -80,5 +80,6 @@
       }
     </script>
 
+{{'tiny-img-link-preloader.js' | asset_url | script_tag }}
 </body>
 </html>

@@ -19,14 +19,14 @@
   
   <!-- Collections Sidebar -->
   <div class="lg:w-1/4">
-    <h1 class="text-md lg:text-4xl mb-6">{{ 'collections.title' | t }}</h1>
+    <h2 class="text-lg lg:text-4xl mb-6 hidden md:block">{{ 'collections.title' | t }}</h1>
     
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
       {% if section.settings.collection_list %}
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
             <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <span class="text-sm lg:text-3xl font-thin w-max block md:flex">{{ collection.title }}</span>
+              <span class="text-md lg:text-3xl font-thin w-max block md:flex">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
@@ -57,7 +57,7 @@
 
     <div class="preview-loading hidden text-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-      <p class="text-gray-600 text-3xl">Loading <span></span> Collection...</p>
+      <h3 class="text-gray-600 font-thin text-3xl">Loading <span></span> Collection...</p>
     </div>
 
     <!-- Preview Content -->
@@ -73,21 +73,7 @@
       </div>
 
         <a href="#" class="flex md:hidden group eyes-link view-collection text-black transition-all duration-300 text-sm lg:text-2xl font-thin flex items-center justify-center pe-2">
-            View Full Collection 
-            <span class="eyes group relative flex left-2 transition-all duration-[400ms] w-[24px] h-[24px] font-light will-change-[left]">
-              <svg class="absolute h-max right-0 duration-300" width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.2" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000">
-                <path id="right-eyelid" d="M19.5 16L17.0248 12.6038" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path id="middle-eyelid" d="M12 17.5V14" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path id="left-eyelid" d="M4.5 16L6.96895 12.6124" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path id="eyelid-closed" d="M3 8C6.6 16 17.4 16 21 8" stroke="#4c4c4c" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-
-                <div if ( )
-              <svg class="absolute h-hax right-0 opacity-0 duration-300" width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000" stroke-width="1.2">
-                <path id="eyelid-open" class="hidden" d="M3 13C6.6 5 17.4 5 21 13" stroke="#6f6f6f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path class="eyeline-open hidden" d="M12 17C10.3431 17 9 15.6569 9 14C9 12.3431 10.3431 11 12 11C13.6569 11 15 12.3431 15 14C15 15.6569 13.6569 17 12 17Z" fill="#000000" stroke="#000000" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </span>          
+            View Full Collection        
           </a>
     </div>
   </div>
