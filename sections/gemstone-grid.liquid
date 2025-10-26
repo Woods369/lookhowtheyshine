@@ -1,0 +1,1007 @@
+{% comment %}
+  Gemstone Grid Section
+  Features: Splide.js tag navigation, GSAP animations, product filtering by gemstone tags
+{% endcomment %}
+
+<div 
+  id="gemstone-grid-{{ section.id }}" 
+  class="gemstone-grid-section py-12 lg:py-16 px-4 lg:px-8 relative overflow-hidden bg-white"
+  data-section-id="{{ section.id }}"
+  data-collection-handle="{{ section.settings.collection.handle | default: 'gemstone' }}"
+  data-auto-select="{{ section.settings.enable_auto_select }}"
+  data-auto-delay="{{ section.settings.auto_select_delay }}"
+  data-products-limit="{{ section.settings.products_to_show }}"
+  data-animation-speed="{{ section.settings.animation_speed }}"
+  data-tag-gap="{{ section.settings.tag_gap }}"
+  data-columns-desktop="{{ section.settings.columns_desktop }}"
+  data-columns-mobile="{{ section.settings.columns_mobile }}"
+  data-product-gap="{{ section.settings.product_gap }}"
+>
+  
+  {%- comment -%} Section Heading {%- endcomment -%}
+  {% if section.settings.heading != blank %}
+    <div class="max-w-7xl mx-auto mb-8 lg:mb-12">
+      <h2 class="text-4xl lg:text-5xl font-bold text-center">{{ section.settings.heading }}</h2>
+    </div>
+  {% endif %}
+
+  {%- comment -%} Top Row: Gemstone Tag Navigation {%- endcomment -%}
+  <div class="max-w-7xl mx-auto mb-8 lg:mb-12 relative">
+    {%- comment -%} Watch ticks background pattern {%- endcomment -%}
+    <div class="watch-ticks-bg absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden="true">
+      <div class="watch-ticks-pattern" style="will-change: transform;"></div>
+    </div>
+    
+    <div id="gemstone-tags-{{ section.id }}" class="splide gemstone-tags-slider relative z-10" role="tablist" aria-label="Select gemstone type">
+      <div class="splide__track">
+        <ul class="splide__list">
+          {% if section.blocks.size > 0 %}
+            {% for block in section.blocks %}
+              {% if block.type == 'gemstone_tag' %}
+                <li class="splide__slide" {{ block.shopify_attributes }}>
+                  <button 
+                    class="gemstone-tag px-6 py-3 lg:px-8 lg:py-4 text-xl lg:text-2xl font-medium rounded-full border-2 border-gray-300 hover:border-gray-900 transition-all duration-300 cursor-pointer whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    data-tag="{{ block.settings.product_tag | downcase }}"
+                    data-gemstone-name="{{ block.settings.gemstone_name | escape }}"
+                    {% if block.settings.hover_image %}
+                      data-hover-img="{{ block.settings.hover_image | image_url: width: 300 }}"
+                      style="--hover-img: url('{{ block.settings.hover_image | image_url: width: 300 }}');"
+                    {% endif %}
+                    {% if block.settings.primary_color %}
+                      data-color-primary="{{ block.settings.primary_color }}"
+                      style="--primary-color: {{ block.settings.primary_color }};"
+                    {% endif %}
+                    role="tab"
+                    aria-selected="false"
+                    tabindex="-1"
+                  >
+                    {{ block.settings.gemstone_name }}
+                  </button>
+                </li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {%- assign default_gemstones = 'Amethyst,Selenite,Agate,Rose Quartz,Sodalite' | split: ',' -%}
+            {% for gemstone in default_gemstones %}
+              <li class="splide__slide py-4">
+                <button 
+                  class="gemstone-tag px-6 py-4 lg:px-8 lg:py-4 text-xl lg:text-2xl font-medium rounded-full border-2 border-gray-300 hover:border-gray-900 transition-all duration-300 cursor-pointer whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 w-max"
+                  data-tag="{{ gemstone | downcase | strip }}"
+                  data-gemstone-name="{{ gemstone | escape }}"
+                  role="tab"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  {{ gemstone }}
+                </button>
+              </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Bottom Row: Product Grid with Loading States {%- endcomment -%}
+  <div class="max-w-7xl mx-auto relative">
+    
+    <div class="sr-only" aria-live="polite" aria-atomic="true" id="gemstone-status-{{ section.id }}"></div>
+
+    <div class="preview-default text-center py-20 lg:py-32">
+      <div class="max-w-2xl mx-auto">
+        <svg class="w-20 h-20 mx-auto text-gray-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+        </svg>
+        <h3 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Discover Your Crystal</h3>
+        <p class="text-lg lg:text-xl text-gray-600">Select a gemstone above to explore our curated collection</p>
+      </div>
+    </div>
+
+    <div class="preview-loading hidden text-center py-20 lg:py-32">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-gray-900 mx-auto mb-6"></div>
+      <p class="text-2xl lg:text-3xl text-gray-700">Loading <span class="gemstone-name-loading font-semibold"></span> crystals...</p>
+    </div>
+
+    <div class="preview-content hidden relative">
+      <div class="gradient-overlay absolute inset-0 pointer-events-none z-10 opacity-60" style="background: linear-gradient(to top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 100%);"></div>
+
+      <div class="collection-header mb-8 lg:mb-12 flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h3 class="gemstone-title text-3xl lg:text-4xl font-bold"></h3>
+          <p class="product-count text-lg text-gray-600 mt-2"></p>
+        </div>
+        <a href="#" class="view-all-link group inline-flex items-center gap-2 text-xl lg:text-2xl text-gray-900 hover:text-gray-600 transition-colors">
+          View All
+          <svg class="w-6 h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </a>
+      </div>
+
+      <div id="gemstone-products-{{ section.id }}" class="splide gemstone-products-slider">
+        <div class="splide__track">
+          <ul class="splide__list products-grid"></ul>
+        </div>
+        
+        <div class="splide__arrows mt-8">
+          <button class="splide__arrow splide__arrow--prev !bg-white !w-12 !h-12 !-left-6 !shadow-lg hover:!bg-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <button class="splide__arrow splide__arrow--next !bg-white !w-12 !h-12 !-right-6 !shadow-lg hover:!bg-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="error-message hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-red-800 text-center"></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  #gemstone-grid-{{ section.id }} {
+    --tag-gap: {{ section.settings.tag_gap }}rem;
+    --product-gap: {{ section.settings.product_gap }}rem;
+  }
+
+  #gemstone-grid-{{ section.id }} .gemstone-tag {
+    position: relative;
+  }
+
+  #gemstone-grid-{{ section.id }} .gemstone-tag::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background-image: var(--hover-img);
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 100;
+    top: -220px;
+    left: 50%;
+    margin-left: -100px;
+  }
+
+  #gemstone-grid-{{ section.id }} .gemstone-tag:hover::before,
+  #gemstone-grid-{{ section.id }} .gemstone-tag:focus::before {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #gemstone-grid-{{ section.id }} .gemstone-tag[data-active="true"] {
+    background-color: var(--primary-color, #000);
+    border-color: var(--primary-color, #000);
+    color: white;
+  }
+
+  #gemstone-grid-{{ section.id }} .gemstone-tag:not([data-hover-img])::before {
+    display: none;
+  }
+
+  #gemstone-tags-{{ section.id }} .splide__list {
+    gap: var(--tag-gap);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #gemstone-grid-{{ section.id }} * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Watch ticks background pattern styling */
+  #gemstone-grid-{{ section.id }} .watch-ticks-bg {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  #gemstone-grid-{{ section.id }} .watch-ticks-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("{{ 'watch-ticks.svg' | asset_url }}");
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: auto 100%;
+    color: #999;
+    opacity: 0.25;
+    transition: transform 0.3s ease-out;
+  }
+</style>
+
+<script>
+class GemstoneGridManager {
+  constructor(sectionId) {
+    this.sectionId = sectionId;
+    this.container = document.getElementById(`gemstone-grid-${sectionId}`);
+    
+    if (!this.container) {
+      console.warn('⚠️ Gemstone Grid container not found');
+      return;
+    }
+
+    this.config = {
+      collectionHandle: this.container.dataset.collectionHandle || 'gemstone',
+      autoSelect: this.container.dataset.autoSelect === 'true',
+      autoDelay: parseInt(this.container.dataset.autoDelay) || 800,
+      productsLimit: parseInt(this.container.dataset.productsLimit) || 8,
+      animationSpeed: parseInt(this.container.dataset.animationSpeed) || 400,
+      tagGap: this.container.dataset.tagGap || '1',
+      columnsDesktop: parseInt(this.container.dataset.columnsDesktop) || 4,
+      columnsMobile: parseInt(this.container.dataset.columnsMobile) || 2,
+      productGap: this.container.dataset.productGap || '1.5'
+    };
+
+    this.state = {
+      userHasInteracted: false,
+      autoSelectionComplete: false,
+      isLoading: false,
+      currentTag: null,
+      productCache: {}
+    };
+
+    this.elements = {
+      tagsSlider: document.getElementById(`gemstone-tags-${sectionId}`),
+      productsSlider: document.getElementById(`gemstone-products-${sectionId}`),
+      previewDefault: this.container.querySelector('.preview-default'),
+      previewLoading: this.container.querySelector('.preview-loading'),
+      previewContent: this.container.querySelector('.preview-content'),
+      productsGrid: this.container.querySelector('.products-grid'),
+      gemstoneTitle: this.container.querySelector('.gemstone-title'),
+      productCount: this.container.querySelector('.product-count'),
+      viewAllLink: this.container.querySelector('.view-all-link'),
+      statusRegion: document.getElementById(`gemstone-status-${sectionId}`),
+      gradientOverlay: this.container.querySelector('.gradient-overlay'),
+      errorMessage: this.container.querySelector('.error-message'),
+      gemstoneTags: this.container.querySelectorAll('.gemstone-tag')
+    };
+
+    this.tagSlider = null;
+    this.productSlider = null;
+
+    this.init();
+  }
+
+  init() {
+    if (typeof Splide === 'undefined') {
+      console.error('❌ Splide.js is required but not loaded');
+      return;
+    }
+
+    if (typeof gsap === 'undefined') {
+      console.warn('⚠️ GSAP not loaded - animations will be limited');
+    }
+
+    this.initTagSlider();
+    this.bindEvents();
+    this.setupAutoSelection();
+    this.checkDeepLink();
+
+    console.log('✨ Gemstone Grid Manager initialized');
+  }
+
+  initTagSlider() {
+    if (!this.elements.tagsSlider) return;
+
+    const gapRem = parseFloat(this.config.tagGap);
+    const gapPx = gapRem * 16;
+
+    this.tagSlider = new Splide(this.elements.tagsSlider, {
+      type: 'slide',
+      focus: 'center',
+      pagination: false,
+      perPage: 'auto',
+      arrows: false,
+      drag: 'free',
+      snap: true,
+      perMove: 1,
+      gap: '30px',
+      padding: { left: '10%', right: '10%' },
+      breakpoints: {
+        768: {
+          padding: { left: '5%', right: '5%' },
+          gap: '20px'
+        }
+      },
+      keyboard: 'focused',
+      trimSpace: false,
+      updateOnMove: true
+    });
+
+    this.tagSlider.mount();
+    
+    // Sync watch ticks background with slider movement
+    this.tagSlider.on('moved', () => {
+      this.syncWatchTicks();
+    });
+    this.tagSlider.on('scrolled', () => {
+      this.syncWatchTicks();
+    });
+  }
+
+  initProductSlider() {
+    if (!this.elements.productsSlider) return;
+
+    if (this.productSlider) {
+      this.productSlider.destroy();
+    }
+
+    const gapRem = parseFloat(this.config.productGap);
+    const gapPx = gapRem * 16;
+
+    this.productSlider = new Splide(this.elements.productsSlider, {
+      type: 'slide',
+      perPage: this.config.columnsDesktop,
+      perMove: 1,
+      gap: `${gapPx}px`,
+      pagination: true,
+      arrows: true,
+      keyboard: true,
+      drag: true,
+      breakpoints: {
+        1024: {
+          perPage: Math.max(2, Math.floor(this.config.columnsDesktop * 0.75))
+        },
+        768: {
+          perPage: this.config.columnsMobile
+        }
+      }
+    });
+
+    this.productSlider.mount();
+  }
+
+  bindEvents() {
+    this.elements.gemstoneTags.forEach(tag => {
+      tag.addEventListener('click', (e) => this.handleTagClick(e));
+      tag.addEventListener('keydown', (e) => this.handleTagKeydown(e));
+      
+      if (typeof gsap !== 'undefined' && tag.dataset.hoverImg) {
+        tag.addEventListener('mouseenter', () => this.animateHoverPreview(tag, true));
+        tag.addEventListener('mouseleave', () => this.animateHoverPreview(tag, false));
+      }
+    });
+
+    document.addEventListener('shopify:section:load', (e) => {
+      if (e.detail.sectionId === this.sectionId) {
+        this.init();
+      }
+    });
+
+    document.addEventListener('shopify:section:unload', (e) => {
+      if (e.detail.sectionId === this.sectionId) {
+        this.cleanup();
+      }
+    });
+
+    document.addEventListener('shopify:block:select', (e) => {
+      if (e.target.closest(`#gemstone-grid-${this.sectionId}`)) {
+        const tag = e.target.querySelector('.gemstone-tag');
+        if (tag) {
+          this.selectGemstone(tag.dataset.tag, false);
+        }
+      }
+    });
+  }
+
+  animateHoverPreview(tag, show) {
+    if (typeof gsap === 'undefined') return;
+
+    gsap.to(tag, {
+      scale: show ? 1.05 : 1,
+      duration: 0.3,
+      ease: 'power2.out'
+    });
+  }
+
+  handleTagClick(event) {
+    event.preventDefault();
+    this.state.userHasInteracted = true;
+    
+    const tag = event.currentTarget;
+    const tagValue = tag.dataset.tag;
+    
+    this.selectGemstone(tagValue, false);
+  }
+
+  handleTagKeydown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.handleTagClick(event);
+    } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      const direction = event.key === 'ArrowRight' ? 1 : -1;
+      const tags = Array.from(this.elements.gemstoneTags);
+      const currentIndex = tags.indexOf(event.currentTarget);
+      const nextIndex = (currentIndex + direction + tags.length) % tags.length;
+      tags[nextIndex].focus();
+    }
+  }
+
+  setupAutoSelection() {
+    if (!this.config.autoSelect) return;
+
+    const firstTag = this.elements.gemstoneTags[0];
+    if (!firstTag) return;
+
+    setTimeout(() => {
+      if (!this.state.userHasInteracted && !this.state.autoSelectionComplete) {
+        this.selectGemstone(firstTag.dataset.tag, true);
+        this.state.autoSelectionComplete = true;
+      }
+    }, this.config.autoDelay);
+  }
+
+  checkDeepLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const gemParam = urlParams.get('gem');
+    const hashGem = window.location.hash.substring(1);
+
+    const targetGem = gemParam || hashGem;
+    
+    if (targetGem) {
+      const matchingTag = Array.from(this.elements.gemstoneTags).find(
+        tag => tag.dataset.tag === targetGem.toLowerCase()
+      );
+      
+      if (matchingTag) {
+        setTimeout(() => {
+          this.selectGemstone(targetGem.toLowerCase(), false);
+          this.state.userHasInteracted = true;
+        }, 500);
+      }
+    }
+  }
+
+  async selectGemstone(tag, isAutoSelect = false) {
+    if (this.state.isLoading) return;
+    
+    const gemstoneName = this.getGemstoneName(tag);
+    
+    this.updateActiveTag(tag);
+    
+    if (!isAutoSelect && 'replaceState' in history) {
+      const url = new URL(window.location);
+      url.searchParams.set('gem', tag);
+      history.replaceState({}, '', url);
+    }
+
+    this.showLoadingState(gemstoneName);
+    this.announceStatus(`Loading ${gemstoneName} crystals`);
+
+    try {
+      if (this.state.productCache[tag]) {
+        console.log(`💎 Using cached products for: ${gemstoneName}`);
+        await this.renderProducts(this.state.productCache[tag], gemstoneName, tag);
+      } else {
+        const products = await this.fetchProducts(tag);
+        this.state.productCache[tag] = products;
+        await this.renderProducts(products, gemstoneName, tag);
+      }
+
+      console.log(`✅ Loaded ${gemstoneName} products`);
+    } catch (error) {
+      this.handleError(error, gemstoneName);
+    }
+  }
+
+  getGemstoneName(tag) {
+    const tagElement = Array.from(this.elements.gemstoneTags).find(
+      t => t.dataset.tag === tag
+    );
+    return tagElement ? tagElement.dataset.gemstoneName : tag;
+  }
+
+  updateActiveTag(tag) {
+    this.elements.gemstoneTags.forEach(t => {
+      const isActive = t.dataset.tag === tag;
+      t.setAttribute('data-active', isActive);
+      t.setAttribute('aria-selected', isActive);
+      t.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+
+    if (this.tagSlider) {
+      const activeIndex = Array.from(this.elements.gemstoneTags).findIndex(
+        t => t.dataset.tag === tag
+      );
+      if (activeIndex >= 0) {
+        this.tagSlider.go(activeIndex);
+      }
+    }
+  }
+
+  showLoadingState(gemstoneName) {
+    this.state.isLoading = true;
+
+    const loadingSpan = this.container.querySelector('.gemstone-name-loading');
+    if (loadingSpan) {
+      loadingSpan.textContent = gemstoneName;
+    }
+
+    this.elements.previewDefault?.classList.add('hidden');
+    this.elements.previewContent?.classList.add('hidden');
+    this.elements.previewLoading?.classList.remove('hidden');
+
+    this.elements.gemstoneTags.forEach(tag => {
+      tag.disabled = true;
+      tag.style.opacity = '0.6';
+    });
+  }
+
+  async fetchProducts(tag) {
+    const url = `/collections/${this.config.collectionHandle}/products.json?limit=50`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch products: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.products || data.products.length === 0) {
+      throw new Error('No products found in collection');
+    }
+
+    const filteredProducts = data.products.filter(product => {
+      return product.tags.some(productTag => 
+        productTag.toLowerCase() === tag.toLowerCase()
+      );
+    });
+
+    if (filteredProducts.length === 0) {
+      throw new Error(`No products found with tag: ${tag}`);
+    }
+
+    return filteredProducts.slice(0, this.config.productsLimit);
+  }
+
+  async renderProducts(products, gemstoneName, tag) {
+    this.elements.productsGrid.innerHTML = '';
+
+    if (this.elements.gemstoneTitle) {
+      this.elements.gemstoneTitle.textContent = gemstoneName;
+    }
+
+    if (this.elements.productCount) {
+      this.elements.productCount.textContent = `${products.length} ${products.length === 1 ? 'crystal' : 'crystals'} available`;
+    }
+
+    if (this.elements.viewAllLink) {
+      this.elements.viewAllLink.href = `/collections/${this.config.collectionHandle}?filter.p.tag=${tag}`;
+    }
+
+    products.forEach(product => {
+      const card = this.createProductCard(product);
+      this.elements.productsGrid.appendChild(card);
+    });
+
+    this.initProductSlider();
+
+    setTimeout(() => {
+      this.elements.previewLoading?.classList.add('hidden');
+      this.elements.previewContent?.classList.remove('hidden');
+      
+      this.elements.gemstoneTags.forEach(tag => {
+        tag.disabled = false;
+        tag.style.opacity = '1';
+      });
+
+      this.state.isLoading = false;
+
+      this.animateProductsIn();
+
+      this.announceStatus(`${products.length} ${gemstoneName} ${products.length === 1 ? 'crystal' : 'crystals'} loaded`);
+    }, 300);
+  }
+
+  createProductCard(product) {
+    const li = document.createElement('li');
+    li.className = 'splide__slide product-card opacity-0';
+    li.style.transform = 'translateY(20px)';
+
+    const imageUrl = this.getOptimizedImageUrl(product.images);
+    
+    li.innerHTML = `
+      <a href="/products/${product.handle}" class="block group" aria-label="View ${this.escapeHtml(product.title)}">
+        <div class="aspect-square rounded-lg overflow-hidden mb-4 bg-gray-100">
+          <img 
+            src="${imageUrl}" 
+            alt="${this.escapeHtml(product.title)}"
+            class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+          />
+        </div>
+        <h4 class="text-lg lg:text-xl font-medium group-hover:text-gray-600 transition-colors">
+          ${this.escapeHtml(product.title)}
+        </h4>
+        ${product.price ? `
+          <p class="text-gray-600 mt-1">
+            ${this.formatMoney(product.price)}
+          </p>
+        ` : ''}
+      </a>
+    `;
+
+    return li;
+  }
+
+  animateProductsIn() {
+    const cards = this.elements.productsGrid.querySelectorAll('.product-card');
+    
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (prefersReducedMotion || typeof gsap === 'undefined') {
+      cards.forEach(card => {
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      });
+      
+      if (this.elements.gradientOverlay) {
+        this.elements.gradientOverlay.style.opacity = '0';
+      }
+      return;
+    }
+
+    gsap.to(cards, {
+      opacity: 1,
+      y: 0,
+      duration: this.config.animationSpeed / 1000,
+      stagger: 0.1,
+      ease: 'power2.out',
+      onComplete: () => {
+        if (this.elements.gradientOverlay) {
+          gsap.to(this.elements.gradientOverlay, {
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
+        }
+      }
+    });
+  }
+
+  getOptimizedImageUrl(images) {
+    if (images && images[0] && images[0].src) {
+      return images[0].src.replace(/(\.[^\.]*$)/, '_600x600$1');
+    }
+    return 'https://via.placeholder.com/600x600/f8f9fa/6c757d?text=No+Image';
+  }
+
+  formatMoney(cents) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(cents / 100);
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  handleError(error, gemstoneName) {
+    console.error(`❌ Error loading ${gemstoneName}:`, error);
+
+    this.elements.previewLoading?.classList.add('hidden');
+    this.elements.previewContent?.classList.remove('hidden');
+    
+    if (this.elements.errorMessage) {
+      const errorText = this.elements.errorMessage.querySelector('p');
+      if (errorText) {
+        errorText.textContent = `Unable to load ${gemstoneName} products. Please try again.`;
+      }
+      this.elements.errorMessage.classList.remove('hidden');
+    }
+
+    this.elements.gemstoneTags.forEach(tag => {
+      tag.disabled = false;
+      tag.style.opacity = '1';
+    });
+
+    this.state.isLoading = false;
+
+    this.announceStatus(`Error loading ${gemstoneName} products`);
+  }
+
+  announceStatus(message) {
+    if (this.elements.statusRegion) {
+      this.elements.statusRegion.textContent = message;
+    }
+  }
+
+  syncWatchTicks() {
+    // Sync the watch ticks background pattern with the tag slider position
+    if (!this.tagSlider) return;
+    
+    const watchTicksPattern = this.container.querySelector('.watch-ticks-pattern');
+    if (!watchTicksPattern) return;
+    
+    // Get the current scroll position of the slider
+    const track = this.elements.tagsSlider.querySelector('.splide__track');
+    if (!track) return;
+    
+    const list = track.querySelector('.splide__list');
+    if (!list) return;
+    
+    // Get the transform value from the list
+    const transform = window.getComputedStyle(list).transform;
+    if (transform && transform !== 'none') {
+      const matrix = new DOMMatrix(transform);
+      const translateX = matrix.m41;
+      
+      // Apply the same transform to the watch ticks (inverted for parallax effect)
+      watchTicksPattern.style.transform = `translateX(${translateX * 0.3}px)`;
+    }
+  }
+
+  cleanup() {
+    if (this.tagSlider) {
+      this.tagSlider.destroy();
+    }
+    if (this.productSlider) {
+      this.productSlider.destroy();
+    }
+    console.log('🧹 Gemstone Grid Manager cleaned up');
+  }
+
+  selectGemstoneByTag(tag) {
+    return this.selectGemstone(tag, false);
+  }
+
+  getCurrentGemstone() {
+    return this.state.currentTag;
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGemstoneGrid);
+} else {
+  initGemstoneGrid();
+}
+
+function initGemstoneGrid() {
+  const sectionId = '{{ section.id }}';
+  window['gemstoneGridManager_' + sectionId] = new GemstoneGridManager(sectionId);
+  
+  window['selectGemstone_' + sectionId] = function(tag) {
+    return window['gemstoneGridManager_' + sectionId].selectGemstoneByTag(tag);
+  };
+}
+</script>
+
+{% schema %}
+{
+  "name": "Gemstone Grid",
+  "tag": "section",
+  "class": "gemstone-grid-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "📚 Section Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Explore Our Gemstones"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Source Collection",
+      "info": "Collection to fetch products from (products will be filtered by gemstone tags)"
+    },
+    {
+      "type": "header",
+      "content": "⚙️ Behavior Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_auto_select",
+      "label": "Auto-select first gemstone",
+      "default": true,
+      "info": "Automatically select the first gemstone after page load"
+    },
+    {
+      "type": "range",
+      "id": "auto_select_delay",
+      "min": 200,
+      "max": 2000,
+      "step": 100,
+      "unit": "ms",
+      "label": "Auto-select delay",
+      "default": 800,
+      "info": "Delay before auto-selecting first gemstone"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "label": "Products to show",
+      "default": 8,
+      "info": "Maximum number of products to display per gemstone"
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "min": 200,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "label": "Animation speed",
+      "default": 400,
+      "info": "Duration of fade-up animations"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "tag_gap",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "unit": "rem",
+      "label": "Tag spacing",
+      "default": 1,
+      "info": "Gap between gemstone tags in the top row"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "label": "Desktop columns",
+      "default": 4,
+      "info": "Number of product columns on desktop"
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "label": "Mobile columns",
+      "default": 2,
+      "info": "Number of product columns on mobile"
+    },
+    {
+      "type": "range",
+      "id": "product_gap",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "unit": "rem",
+      "label": "Product spacing",
+      "default": 1.5,
+      "info": "Gap between products in the grid"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "gemstone_tag",
+      "name": "Gemstone",
+      "settings": [
+        {
+          "type": "text",
+          "id": "gemstone_name",
+          "label": "Gemstone Name",
+          "default": "Amethyst",
+          "info": "Display name for this gemstone"
+        },
+        {
+          "type": "text",
+          "id": "product_tag",
+          "label": "Product Tag",
+          "default": "amethyst",
+          "info": "Tag used to filter products (case-insensitive)"
+        },
+        {
+          "type": "image_picker",
+          "id": "hover_image",
+          "label": "Hover Preview Image",
+          "info": "1:1 square image shown on hover (recommended: 300x300px)"
+        },
+        {
+          "type": "color",
+          "id": "primary_color",
+          "label": "Primary Color",
+          "default": "#9966CC",
+          "info": "Color for active state and accents"
+        },
+        {
+          "type": "color",
+          "id": "secondary_color",
+          "label": "Secondary Color (optional)",
+          "info": "Additional color for future use"
+        },
+        {
+          "type": "paragraph",
+          "content": "💡 Future Enhancement: These settings can be replaced with Metaobject references for easier management across the site."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gemstone Grid",
+      "blocks": [
+        {
+          "type": "gemstone_tag",
+          "settings": {
+            "gemstone_name": "Amethyst",
+            "product_tag": "amethyst",
+            "primary_color": "#9966CC"
+          }
+        },
+        {
+          "type": "gemstone_tag",
+          "settings": {
+            "gemstone_name": "Selenite",
+            "product_tag": "selenite",
+            "primary_color": "#F0EAD6"
+          }
+        },
+        {
+          "type": "gemstone_tag",
+          "settings": {
+            "gemstone_name": "Agate",
+            "product_tag": "agate",
+            "primary_color": "#CD853F"
+          }
+        },
+        {
+          "type": "gemstone_tag",
+          "settings": {
+            "gemstone_name": "Rose Quartz",
+            "product_tag": "rose quartz",
+            "primary_color": "#FF69B4"
+          }
+        },
+        {
+          "type": "gemstone_tag",
+          "settings": {
+            "gemstone_name": "Sodalite",
+            "product_tag": "sodalite",
+            "primary_color": "#1E3A8A"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

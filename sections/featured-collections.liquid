@@ -3,7 +3,7 @@
   collections with an interactive sidebar and preview area.
 {% endcomment %}
 
-<div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20 relative">
+<div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20 relative min-h-[700px]">
   
   <!-- Halloween Blood Drop Effect -->
   {% if section.settings.enable_blood_drop %}
@@ -26,7 +26,7 @@
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
             <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <span class="text-md lg:text-3xl font-thin w-max block md:flex">{{ collection.title }}</span>
+              <span class="text-md lg:text-2xl xl:text-3xl font-thin w-max block md:flex">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}

@@ -1,0 +1,101 @@
+{% comment %}
+  Gemstone Grid Section
+  
+  Features:
+  - Horizontal scrolling gemstone tag navigation with Splide.js
+  - Center-focused tag selection with smooth snapping
+  - Hover preview images with GSAP animations
+  - Dynamic product filtering by gemstone tags
+  - GSAP fade-up animations with gradient overlay
+  - Responsive grid layout with configurable columns
+  - Accessibility-focused with ARIA labels and keyboard navigation
+  
+  Usage:
+  - Add via Theme Editor to any template
+  - Configure gemstones via blocks or use default set
+  - Adjust layout, timing, and animation settings
+  
+  Future Enhancement:
+  - Replace block settings with Metaobject references for gemstone data
+  - Example: collection.metafields.custom.gemstone_data.primary_color.value
+{% endcomment %}
+
+<div 
+  id="gemstone-grid-{{ section.id }}" 
+  class="gemstone-grid-section py-12 lg:py-16 px-4 lg:px-8 relative overflow-hidden"
+  data-section-id="{{ section.id }}"
+  data-collection-handle="{{ section.settings.collection.handle | default: 'gemstone' }}"
+  data-auto-select="{{ section.settings.enable_auto_select }}"
+  data-auto-delay="{{ section.settings.auto_select_delay }}"
+  data-products-limit="{{ section.settings.products_to_show }}"
+  data-animation-speed="{{ section.settings.animation_speed }}"
+  data-tag-gap="{{ section.settings.tag_gap }}"
+  data-columns-desktop="{{ section.settings.columns_desktop }}"
+  data-columns-mobile="{{ section.settings.columns_mobile }}"
+  data-product-gap="{{ section.settings.product_gap }}"
+>
+  
+  {%- comment -%} Section Heading {%- endcomment -%}
+  {% if section.settings.heading != blank %}
+    <div class="max-w-7xl mx-auto mb-8 lg:mb-12">
+      <h2 class="text-4xl lg:text-5xl font-bold text-center">{{ section.settings.heading }}</h2>
+    </div>
+  {% endif %}
+
+  {%- comment -%} Top Row: Gemstone Tag Navigation (Splide Slider) {%- endcomment -%}
+  <div class="max-w-7xl mx-auto mb-8 lg:mb-12">
+    <div id="gemstone-tags-{{ section.id }}" class="splide gemstone-tags-slider" role="tablist" aria-label="Select gemstone type">
+      <div class="splide__track">
+        <ul class="splide__list">
+          {% if section.blocks.size > 0 %}
+            {%- comment -%} Build tags from section blocks {%- endcomment -%}
+            {% for block in section.blocks %}
+              {% if block.type == 'gemstone_tag' %}
+                <li class="splide__slide" {{ block.shopify_attributes }}>
+                  <button 
+                    class="gemstone-tag px-6 py-3 lg:px-8 lg:py-4 text-xl lg:text-2xl font-medium rounded-full border-2 border-gray-300 hover:border-gray-900 transition-all duration-300 cursor-pointer whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    data-tag="{{ block.settings.product_tag | downcase }}"
+                    data-gemstone-name="{{ block.settings.gemstone_name | escape }}"
+                    {% if block.settings.hover_image %}
+                      data-hover-img="{{ block.settings.hover_image | image_url: width: 300 }}"
+                      style="--hover-img: url('{{ block.settings.hover_image | image_url: width: 300 }}');"
+                    {% endif %}
+                    {% if block.settings.primary_color %}
+                      data-color-primary="{{ block.settings.primary_color }}"
+                      style="--primary-color: {{ block.settings.primary_color }};"
+                    {% endif %}
+                    {% if block.settings.secondary_color %}
+                      data-color-secondary="{{ block.settings.secondary_color }}"
+                      style="--secondary-color: {{ block.settings.secondary_color }};"
+                    {% endif %}
+                    role="tab"
+                    aria-selected="false"
+                    tabindex="-1"
+                  >
+                    {{ block.settings.gemstone_name }}
+                  </button>
+                </li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {%- comment -%} Fallback: Default gemstone set if no blocks configured {%- endcomment -%}
+            {%- assign default_gemstones = 'Amethyst,Selenite,Agate,Rose Quartz,Sodalite' | split: ',' -%}
+            {% for gemstone in default_gemstones %}
+              <li class="splide__slide">
+                <button 
+                  class="gemstone-tag px-6 py-3 lg:px-8 lg:py-4 text-xl lg:text-2xl font-medium rounded-full border-2 border-gray-300 hover:border-gray-900 transition-all duration-300 cursor-pointer whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                  data-tag="{{ gemstone | downcase | strip }}"
+                  data-gemstone-name="{{ gemstone | escape }}"
+                  role="tab"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  {{ gemstone }}
+                </button>
+              </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
