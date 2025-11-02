@@ -19,7 +19,7 @@
   
   <!-- Collections Sidebar -->
   <div class="lg:w-1/4">
-    <h2 class="text-lg lg:text-4xl mb-6 hidden md:block">{{ 'collections.title' | t }}</h1>
+    <h2 class="text-lg lg:text-4xl mb-6 hidden font-bold md:block">{{ 'collections.title' | t }}</h1>
     
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
       {% if section.settings.collection_list %}
@@ -63,7 +63,7 @@
     <!-- Preview Content -->
     <div class="preview-content hidden">
       <div class="collection-header mb-6 flex flex-wrap justify-between items-start">
-        <h2 class="hidden md:flex collection-title text-sm md:text-4xl h-max"></h2>
+        <h2 class="hidden md:flex collection-title italic font-light text-sm md:text-4xl h-max"></h2>
         <div class="text-center">
         </div>
       </div>
