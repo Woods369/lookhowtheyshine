@@ -29,7 +29,7 @@
   <div class="max-w-7xl mx-auto mb-8 lg:mb-12 relative">
     {%- comment -%} Watch ticks background pattern {%- endcomment -%}
     <div class="watch-ticks-bg absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden="true">
-      <div class="watch-ticks-pattern" style="will-change: transform;"></div>
+      <div class="watch-ticks-pattern"></div>
     </div>
     
     <div id="gemstone-tags-{{ section.id }}" class="splide gemstone-tags-slider relative z-10" role="tablist" aria-label="Select gemstone type">
@@ -40,7 +40,7 @@
               {% if block.type == 'gemstone_tag' %}
                 <li class="splide__slide" {{ block.shopify_attributes }}>
                   <button 
-                    class="gemstone-tag px-6 py-3 lg:px-8 lg:py-4 text-xl lg:text-2xl font-medium rounded-full border-2 border-gray-300 hover:border-gray-900 transition-all duration-300 cursor-pointer whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    class="gemstone-tag px-6 py-3 lg:px-8 lg:py-4 text-xl lg:text-2xl font-medium transition-all duration-300 cursor-pointer whitespace-nowrap"
                     data-tag="{{ block.settings.product_tag | downcase }}"
                     data-gemstone-name="{{ block.settings.gemstone_name | escape }}"
                     {% if block.settings.hover_image %}
@@ -53,14 +53,13 @@
                     {% endif %}
                     role="tab"
                     aria-selected="false"
-                    tabindex="-1"
-                  >
+                    tabindex="-1">
                     {{ block.settings.gemstone_name }}
                   </button>
                 </li>
               {% endif %}
             {% endfor %}
-          {% else %}
+            {% else %}
             {%- assign default_gemstones = 'Amethyst,Selenite,Agate,Rose Quartz,Sodalite' | split: ',' -%}
             {% for gemstone in default_gemstones %}
               <li class="splide__slide py-4">
@@ -182,9 +181,7 @@
   }
 
   #gemstone-grid-{{ section.id }} .gemstone-tag[data-active="true"] {
-    background-color: var(--primary-color, #000);
-    border-color: var(--primary-color, #000);
-    color: white;
+    color: black;
   }
 
   #gemstone-grid-{{ section.id }} .gemstone-tag:not([data-hover-img])::before {
@@ -233,383 +230,487 @@
     background-size: auto 100%;
     color: #999;
     opacity: 0.25;
-    transition: transform 0.3s ease-out;
   }
 </style>
 
 <script>
-class GemstoneGridManager {
-  constructor(sectionId) {
-    this.sectionId = sectionId;
-    this.container = document.getElementById(`gemstone-grid-${sectionId}`);
-    
-    if (!this.container) {
-      console.warn('⚠️ Gemstone Grid container not found');
-      return;
+  class GemstoneGridManager {
+    constructor(sectionId) {
+      this.sectionId = sectionId;
+      this.container = document.getElementById(`gemstone-grid-${sectionId}`);
+      
+      if (!this.container) {
+        console.warn('⚠️ Gemstone Grid container not found');
+        return;
+      }
+
+      this.config = {
+        collectionHandle: this.container.dataset.collectionHandle || 'gemstone',
+        autoSelect: this.container.dataset.autoSelect === 'true',
+        autoDelay: parseInt(this.container.dataset.autoDelay) || 800,
+        productsLimit: parseInt(this.container.dataset.productsLimit) || 8,
+        animationSpeed: parseInt(this.container.dataset.animationSpeed) || 400,
+        tagGap: this.container.dataset.tagGap || '1',
+        columnsDesktop: parseInt(this.container.dataset.columnsDesktop) || 4,
+        columnsMobile: parseInt(this.container.dataset.columnsMobile) || 2,
+        productGap: this.container.dataset.productGap || '1.5'
+      };
+
+      this.state = {
+        userHasInteracted: false,
+        autoSelectionComplete: false,
+        isLoading: false,
+        currentTag: null,
+        productCache: {}
+      };
+
+      this.elements = {
+        tagsSlider: document.getElementById(`gemstone-tags-${sectionId}`),
+        productsSlider: document.getElementById(`gemstone-products-${sectionId}`),
+        previewDefault: this.container.querySelector('.preview-default'),
+        previewLoading: this.container.querySelector('.preview-loading'),
+        previewContent: this.container.querySelector('.preview-content'),
+        productsGrid: this.container.querySelector('.products-grid'),
+        gemstoneTitle: this.container.querySelector('.gemstone-title'),
+        productCount: this.container.querySelector('.product-count'),
+        viewAllLink: this.container.querySelector('.view-all-link'),
+        statusRegion: document.getElementById(`gemstone-status-${sectionId}`),
+        gradientOverlay: this.container.querySelector('.gradient-overlay'),
+        errorMessage: this.container.querySelector('.error-message'),
+        gemstoneTags: this.container.querySelectorAll('.gemstone-tag')
+      };
+
+      this.tagSlider = null;
+      this.productSlider = null;
+
+      this.init();
     }
 
-    this.config = {
-      collectionHandle: this.container.dataset.collectionHandle || 'gemstone',
-      autoSelect: this.container.dataset.autoSelect === 'true',
-      autoDelay: parseInt(this.container.dataset.autoDelay) || 800,
-      productsLimit: parseInt(this.container.dataset.productsLimit) || 8,
-      animationSpeed: parseInt(this.container.dataset.animationSpeed) || 400,
-      tagGap: this.container.dataset.tagGap || '1',
-      columnsDesktop: parseInt(this.container.dataset.columnsDesktop) || 4,
-      columnsMobile: parseInt(this.container.dataset.columnsMobile) || 2,
-      productGap: this.container.dataset.productGap || '1.5'
-    };
+    init() {
+      if (typeof Splide === 'undefined') {
+        console.error('❌ Splide.js is required but not loaded');
+        return;
+      }
 
-    this.state = {
-      userHasInteracted: false,
-      autoSelectionComplete: false,
-      isLoading: false,
-      currentTag: null,
-      productCache: {}
-    };
+      if (typeof gsap === 'undefined') {
+        console.warn('⚠️ GSAP not loaded - animations will be limited');
+      }
 
-    this.elements = {
-      tagsSlider: document.getElementById(`gemstone-tags-${sectionId}`),
-      productsSlider: document.getElementById(`gemstone-products-${sectionId}`),
-      previewDefault: this.container.querySelector('.preview-default'),
-      previewLoading: this.container.querySelector('.preview-loading'),
-      previewContent: this.container.querySelector('.preview-content'),
-      productsGrid: this.container.querySelector('.products-grid'),
-      gemstoneTitle: this.container.querySelector('.gemstone-title'),
-      productCount: this.container.querySelector('.product-count'),
-      viewAllLink: this.container.querySelector('.view-all-link'),
-      statusRegion: document.getElementById(`gemstone-status-${sectionId}`),
-      gradientOverlay: this.container.querySelector('.gradient-overlay'),
-      errorMessage: this.container.querySelector('.error-message'),
-      gemstoneTags: this.container.querySelectorAll('.gemstone-tag')
-    };
+      this.initTagSlider();
+      this.bindEvents();
+      this.setupAutoSelection();
+      this.checkDeepLink();
 
-    this.tagSlider = null;
-    this.productSlider = null;
-
-    this.init();
-  }
-
-  init() {
-    if (typeof Splide === 'undefined') {
-      console.error('❌ Splide.js is required but not loaded');
-      return;
+      console.log('✨ Gemstone Grid Manager initialized');
     }
 
-    if (typeof gsap === 'undefined') {
-      console.warn('⚠️ GSAP not loaded - animations will be limited');
-    }
+    initTagSlider() {
+      if (!this.elements.tagsSlider) return;
 
-    this.initTagSlider();
-    this.bindEvents();
-    this.setupAutoSelection();
-    this.checkDeepLink();
+      const gapRem = parseFloat(this.config.tagGap);
+      const gapPx = gapRem * 16;
 
-    console.log('✨ Gemstone Grid Manager initialized');
-  }
-
-  initTagSlider() {
-    if (!this.elements.tagsSlider) return;
-
-    const gapRem = parseFloat(this.config.tagGap);
-    const gapPx = gapRem * 16;
-
-    this.tagSlider = new Splide(this.elements.tagsSlider, {
-      type: 'slide',
-      focus: 'center',
-      pagination: false,
-      perPage: 'auto',
-      arrows: false,
-      drag: 'free',
-      snap: true,
-      perMove: 1,
-      gap: '30px',
-      padding: { left: '10%', right: '10%' },
-      breakpoints: {
-        768: {
-          padding: { left: '5%', right: '5%' },
-          gap: '20px'
-        }
-      },
-      keyboard: 'focused',
-      trimSpace: false,
-      updateOnMove: true
-    });
-
-    this.tagSlider.mount();
-    
-    // Sync watch ticks background with slider movement
-    this.tagSlider.on('moved', () => {
-      this.syncWatchTicks();
-    });
-    this.tagSlider.on('scrolled', () => {
-      this.syncWatchTicks();
-    });
-  }
-
-  initProductSlider() {
-    if (!this.elements.productsSlider) return;
-
-    if (this.productSlider) {
-      this.productSlider.destroy();
-    }
-
-    const gapRem = parseFloat(this.config.productGap);
-    const gapPx = gapRem * 16;
-
-    this.productSlider = new Splide(this.elements.productsSlider, {
-      type: 'slide',
-      perPage: this.config.columnsDesktop,
-      perMove: 1,
-      gap: `${gapPx}px`,
-      pagination: true,
-      arrows: true,
-      keyboard: true,
-      drag: true,
-      breakpoints: {
-        1024: {
-          perPage: Math.max(2, Math.floor(this.config.columnsDesktop * 0.75))
+      this.tagSlider = new Splide(this.elements.tagsSlider, {
+        type: 'slide',
+        focus: 'center',
+        pagination: false,
+        perPage: 'auto',
+        arrows: false,
+        drag: 'free',
+        snap: true,
+        perMove: 1,
+        gap: '30px',
+        padding: { left: '10%', right: '10%' },
+        breakpoints: {
+          768: {
+            padding: { left: '5%', right: '5%' },
+            gap: '20px'
+          }
         },
-        768: {
-          perPage: this.config.columnsMobile
+        keyboard: 'focused',
+        trimSpace: false,
+        updateOnMove: true
+      });
+
+      this.tagSlider.mount();
+    }
+
+    initProductSlider() {
+      if (!this.elements.productsSlider) return;
+
+      if (this.productSlider) {
+        this.productSlider.destroy();
+      }
+
+      const gapRem = parseFloat(this.config.productGap);
+      const gapPx = gapRem * 16;
+
+      this.productSlider = new Splide(this.elements.productsSlider, {
+        type: 'slide',
+        perPage: this.config.columnsDesktop,
+        perMove: 1,
+        gap: `${gapPx}px`,
+        pagination: true,
+        arrows: true,
+        keyboard: true,
+        drag: true,
+        breakpoints: {
+          1024: {
+            perPage: Math.max(2, Math.floor(this.config.columnsDesktop * 0.75))
+          },
+          768: {
+            perPage: this.config.columnsMobile
+          }
+        }
+      });
+
+      this.productSlider.mount();
+    }
+
+    bindEvents() {
+      this.elements.gemstoneTags.forEach(tag => {
+        tag.addEventListener('click', (e) => this.handleTagClick(e));
+        tag.addEventListener('keydown', (e) => this.handleTagKeydown(e));
+        
+        if (typeof gsap !== 'undefined' && tag.dataset.hoverImg) {
+          tag.addEventListener('mouseenter', () => this.animateHoverPreview(tag, true));
+          tag.addEventListener('mouseleave', () => this.animateHoverPreview(tag, false));
+        }
+      });
+
+      document.addEventListener('shopify:section:load', (e) => {
+        if (e.detail.sectionId === this.sectionId) {
+          this.init();
+        }
+      });
+
+      document.addEventListener('shopify:section:unload', (e) => {
+        if (e.detail.sectionId === this.sectionId) {
+          this.cleanup();
+        }
+      });
+
+      document.addEventListener('shopify:block:select', (e) => {
+        if (e.target.closest(`#gemstone-grid-${this.sectionId}`)) {
+          const tag = e.target.querySelector('.gemstone-tag');
+          if (tag) {
+            this.selectGemstone(tag.dataset.tag, false);
+          }
+        }
+      });
+    }
+
+    animateHoverPreview(tag, show) {
+      if (typeof gsap === 'undefined') return;
+
+      gsap.to(tag, {
+        scale: show ? 1.05 : 1,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    }
+
+    handleTagClick(event) {
+      event.preventDefault();
+      this.state.userHasInteracted = true;
+      
+      const tag = event.currentTarget;
+      const tagValue = tag.dataset.tag;
+      
+      this.selectGemstone(tagValue, false);
+    }
+
+    handleTagKeydown(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        this.handleTagClick(event);
+      } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const direction = event.key === 'ArrowRight' ? 1 : -1;
+        const tags = Array.from(this.elements.gemstoneTags);
+        const currentIndex = tags.indexOf(event.currentTarget);
+        const nextIndex = (currentIndex + direction + tags.length) % tags.length;
+        tags[nextIndex].focus();
+      }
+    }
+
+    setupAutoSelection() {
+      if (!this.config.autoSelect) return;
+
+      const firstTag = this.elements.gemstoneTags[0];
+      if (!firstTag) return;
+
+      setTimeout(() => {
+        if (!this.state.userHasInteracted && !this.state.autoSelectionComplete) {
+          this.selectGemstone(firstTag.dataset.tag, true);
+          this.state.autoSelectionComplete = true;
+        }
+      }, this.config.autoDelay);
+    }
+
+    checkDeepLink() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gemParam = urlParams.get('gem');
+      const hashGem = window.location.hash.substring(1);
+
+      const targetGem = gemParam || hashGem;
+      
+      if (targetGem) {
+        const matchingTag = Array.from(this.elements.gemstoneTags).find(
+          tag => tag.dataset.tag === targetGem.toLowerCase()
+        );
+        
+        if (matchingTag) {
+          setTimeout(() => {
+            this.selectGemstone(targetGem.toLowerCase(), false);
+            this.state.userHasInteracted = true;
+          }, 500);
         }
       }
-    });
+    }
 
-    this.productSlider.mount();
-  }
-
-  bindEvents() {
-    this.elements.gemstoneTags.forEach(tag => {
-      tag.addEventListener('click', (e) => this.handleTagClick(e));
-      tag.addEventListener('keydown', (e) => this.handleTagKeydown(e));
+    async selectGemstone(tag, isAutoSelect = false) {
+      if (this.state.isLoading) return;
       
-      if (typeof gsap !== 'undefined' && tag.dataset.hoverImg) {
-        tag.addEventListener('mouseenter', () => this.animateHoverPreview(tag, true));
-        tag.addEventListener('mouseleave', () => this.animateHoverPreview(tag, false));
+      const gemstoneName = this.getGemstoneName(tag);
+      
+      this.updateActiveTag(tag);
+      
+      if (!isAutoSelect && 'replaceState' in history) {
+        const url = new URL(window.location);
+        url.searchParams.set('gem', tag);
+        history.replaceState({}, '', url);
       }
-    });
 
-    document.addEventListener('shopify:section:load', (e) => {
-      if (e.detail.sectionId === this.sectionId) {
-        this.init();
-      }
-    });
+      this.showLoadingState(gemstoneName);
+      this.announceStatus(`Loading ${gemstoneName} crystals`);
 
-    document.addEventListener('shopify:section:unload', (e) => {
-      if (e.detail.sectionId === this.sectionId) {
-        this.cleanup();
-      }
-    });
-
-    document.addEventListener('shopify:block:select', (e) => {
-      if (e.target.closest(`#gemstone-grid-${this.sectionId}`)) {
-        const tag = e.target.querySelector('.gemstone-tag');
-        if (tag) {
-          this.selectGemstone(tag.dataset.tag, false);
+      try {
+        if (this.state.productCache[tag]) {
+          console.log(`💎 Using cached products for: ${gemstoneName}`);
+          await this.renderProducts(this.state.productCache[tag], gemstoneName, tag);
+        } else {
+          const products = await this.fetchProducts(tag);
+          this.state.productCache[tag] = products;
+          await this.renderProducts(products, gemstoneName, tag);
         }
-      }
-    });
-  }
 
-  animateHoverPreview(tag, show) {
-    if (typeof gsap === 'undefined') return;
-
-    gsap.to(tag, {
-      scale: show ? 1.05 : 1,
-      duration: 0.3,
-      ease: 'power2.out'
-    });
-  }
-
-  handleTagClick(event) {
-    event.preventDefault();
-    this.state.userHasInteracted = true;
-    
-    const tag = event.currentTarget;
-    const tagValue = tag.dataset.tag;
-    
-    this.selectGemstone(tagValue, false);
-  }
-
-  handleTagKeydown(event) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      this.handleTagClick(event);
-    } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      event.preventDefault();
-      const direction = event.key === 'ArrowRight' ? 1 : -1;
-      const tags = Array.from(this.elements.gemstoneTags);
-      const currentIndex = tags.indexOf(event.currentTarget);
-      const nextIndex = (currentIndex + direction + tags.length) % tags.length;
-      tags[nextIndex].focus();
-    }
-  }
-
-  setupAutoSelection() {
-    if (!this.config.autoSelect) return;
-
-    const firstTag = this.elements.gemstoneTags[0];
-    if (!firstTag) return;
-
-    setTimeout(() => {
-      if (!this.state.userHasInteracted && !this.state.autoSelectionComplete) {
-        this.selectGemstone(firstTag.dataset.tag, true);
-        this.state.autoSelectionComplete = true;
-      }
-    }, this.config.autoDelay);
-  }
-
-  checkDeepLink() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const gemParam = urlParams.get('gem');
-    const hashGem = window.location.hash.substring(1);
-
-    const targetGem = gemParam || hashGem;
-    
-    if (targetGem) {
-      const matchingTag = Array.from(this.elements.gemstoneTags).find(
-        tag => tag.dataset.tag === targetGem.toLowerCase()
-      );
-      
-      if (matchingTag) {
-        setTimeout(() => {
-          this.selectGemstone(targetGem.toLowerCase(), false);
-          this.state.userHasInteracted = true;
-        }, 500);
+        console.log(`✅ Loaded ${gemstoneName} products`);
+      } catch (error) {
+        this.handleError(error, gemstoneName);
       }
     }
-  }
 
-  async selectGemstone(tag, isAutoSelect = false) {
-    if (this.state.isLoading) return;
-    
-    const gemstoneName = this.getGemstoneName(tag);
-    
-    this.updateActiveTag(tag);
-    
-    if (!isAutoSelect && 'replaceState' in history) {
-      const url = new URL(window.location);
-      url.searchParams.set('gem', tag);
-      history.replaceState({}, '', url);
-    }
-
-    this.showLoadingState(gemstoneName);
-    this.announceStatus(`Loading ${gemstoneName} crystals`);
-
-    try {
-      if (this.state.productCache[tag]) {
-        console.log(`💎 Using cached products for: ${gemstoneName}`);
-        await this.renderProducts(this.state.productCache[tag], gemstoneName, tag);
-      } else {
-        const products = await this.fetchProducts(tag);
-        this.state.productCache[tag] = products;
-        await this.renderProducts(products, gemstoneName, tag);
-      }
-
-      console.log(`✅ Loaded ${gemstoneName} products`);
-    } catch (error) {
-      this.handleError(error, gemstoneName);
-    }
-  }
-
-  getGemstoneName(tag) {
-    const tagElement = Array.from(this.elements.gemstoneTags).find(
-      t => t.dataset.tag === tag
-    );
-    return tagElement ? tagElement.dataset.gemstoneName : tag;
-  }
-
-  updateActiveTag(tag) {
-    this.elements.gemstoneTags.forEach(t => {
-      const isActive = t.dataset.tag === tag;
-      t.setAttribute('data-active', isActive);
-      t.setAttribute('aria-selected', isActive);
-      t.setAttribute('tabindex', isActive ? '0' : '-1');
-    });
-
-    if (this.tagSlider) {
-      const activeIndex = Array.from(this.elements.gemstoneTags).findIndex(
+    getGemstoneName(tag) {
+      const tagElement = Array.from(this.elements.gemstoneTags).find(
         t => t.dataset.tag === tag
       );
-      if (activeIndex >= 0) {
-        this.tagSlider.go(activeIndex);
+      return tagElement ? tagElement.dataset.gemstoneName : tag;
+    }
+
+    updateActiveTag(tag) {
+      this.elements.gemstoneTags.forEach(t => {
+        const isActive = t.dataset.tag === tag;
+        t.setAttribute('data-active', isActive);
+        t.setAttribute('aria-selected', isActive);
+        t.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      if (this.tagSlider) {
+        const activeIndex = Array.from(this.elements.gemstoneTags).findIndex(
+          t => t.dataset.tag === tag
+        );
+        if (activeIndex >= 0) {
+          this.tagSlider.go(activeIndex);
+        }
       }
     }
-  }
 
-  showLoadingState(gemstoneName) {
-    this.state.isLoading = true;
+    showLoadingState(gemstoneName) {
+      this.state.isLoading = true;
 
-    const loadingSpan = this.container.querySelector('.gemstone-name-loading');
-    if (loadingSpan) {
-      loadingSpan.textContent = gemstoneName;
+      const loadingSpan = this.container.querySelector('.gemstone-name-loading');
+      if (loadingSpan) {
+        loadingSpan.textContent = gemstoneName;
+      }
+
+      this.elements.previewDefault?.classList.add('hidden');
+      this.elements.previewContent?.classList.add('hidden');
+      this.elements.previewLoading?.classList.remove('hidden');
+
+      this.elements.gemstoneTags.forEach(tag => {
+        tag.disabled = true;
+        tag.style.opacity = '0.6';
+      });
     }
 
-    this.elements.previewDefault?.classList.add('hidden');
-    this.elements.previewContent?.classList.add('hidden');
-    this.elements.previewLoading?.classList.remove('hidden');
+    async fetchProducts(tag) {
+      const url = `/collections/${this.config.collectionHandle}/products.json?limit=50`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch products: ${response.status}`);
+      }
 
-    this.elements.gemstoneTags.forEach(tag => {
-      tag.disabled = true;
-      tag.style.opacity = '0.6';
-    });
-  }
+      const data = await response.json();
+      
+      if (!data.products || data.products.length === 0) {
+        throw new Error('No products found in collection');
+      }
 
-  async fetchProducts(tag) {
-    const url = `/collections/${this.config.collectionHandle}/products.json?limit=50`;
-    
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch products: ${response.status}`);
+      const filteredProducts = data.products.filter(product => {
+        return product.tags.some(productTag => 
+          productTag.toLowerCase() === tag.toLowerCase()
+        );
+      });
+
+      if (filteredProducts.length === 0) {
+        throw new Error(`No products found with tag: ${tag}`);
+      }
+
+      return filteredProducts.slice(0, this.config.productsLimit);
     }
 
-    const data = await response.json();
-    
-    if (!data.products || data.products.length === 0) {
-      throw new Error('No products found in collection');
+    async renderProducts(products, gemstoneName, tag) {
+      this.elements.productsGrid.innerHTML = '';
+
+      if (this.elements.gemstoneTitle) {
+        this.elements.gemstoneTitle.textContent = gemstoneName;
+      }
+
+      if (this.elements.productCount) {
+        this.elements.productCount.textContent = `${products.length} ${products.length === 1 ? 'crystal' : 'crystals'} available`;
+      }
+
+      if (this.elements.viewAllLink) {
+        this.elements.viewAllLink.href = `/collections/${this.config.collectionHandle}?filter.p.tag=${tag}`;
+      }
+
+      products.forEach(product => {
+        const card = this.createProductCard(product);
+        this.elements.productsGrid.appendChild(card);
+      });
+
+      this.initProductSlider();
+
+      setTimeout(() => {
+        this.elements.previewLoading?.classList.add('hidden');
+        this.elements.previewContent?.classList.remove('hidden');
+        
+        this.elements.gemstoneTags.forEach(tag => {
+          tag.disabled = false;
+          tag.style.opacity = '1';
+        });
+
+        this.state.isLoading = false;
+
+        this.animateProductsIn();
+
+        this.announceStatus(`${products.length} ${gemstoneName} ${products.length === 1 ? 'crystal' : 'crystals'} loaded`);
+      }, 300);
     }
 
-    const filteredProducts = data.products.filter(product => {
-      return product.tags.some(productTag => 
-        productTag.toLowerCase() === tag.toLowerCase()
-      );
-    });
+    createProductCard(product) {
+      const li = document.createElement('li');
+      li.className = 'splide__slide product-card opacity-0';
+      li.style.transform = 'translateY(20px)';
 
-    if (filteredProducts.length === 0) {
-      throw new Error(`No products found with tag: ${tag}`);
+      const imageUrl = this.getOptimizedImageUrl(product.images);
+      
+      li.innerHTML = `
+        <a href="/products/${product.handle}" class="block group" aria-label="View ${this.escapeHtml(product.title)}">
+          <div class="aspect-square rounded-lg overflow-hidden mb-4 bg-gray-100">
+            <img 
+              src="${imageUrl}" 
+              alt="${this.escapeHtml(product.title)}"
+              class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+              loading="lazy"
+            />
+          </div>
+          <h4 class="text-lg lg:text-xl font-medium group-hover:text-gray-600 transition-colors">
+            ${this.escapeHtml(product.title)}
+          </h4>
+          ${product.price ? `
+            <p class="text-gray-600 mt-1">
+              ${this.formatMoney(product.price)}
+            </p>
+          ` : ''}
+        </a>
+      `;
+
+      return li;
     }
 
-    return filteredProducts.slice(0, this.config.productsLimit);
-  }
+    animateProductsIn() {
+      const cards = this.elements.productsGrid.querySelectorAll('.product-card');
+      
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      
+      if (prefersReducedMotion || typeof gsap === 'undefined') {
+        cards.forEach(card => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        });
+        
+        if (this.elements.gradientOverlay) {
+          this.elements.gradientOverlay.style.opacity = '0';
+        }
+        return;
+      }
 
-  async renderProducts(products, gemstoneName, tag) {
-    this.elements.productsGrid.innerHTML = '';
-
-    if (this.elements.gemstoneTitle) {
-      this.elements.gemstoneTitle.textContent = gemstoneName;
+      gsap.to(cards, {
+        opacity: 1,
+        y: 0,
+        duration: this.config.animationSpeed / 1000,
+        stagger: 0.1,
+        ease: 'power2.out',
+        onComplete: () => {
+          if (this.elements.gradientOverlay) {
+            gsap.to(this.elements.gradientOverlay, {
+              opacity: 0,
+              duration: 0.5,
+              ease: 'power2.out'
+            });
+          }
+        }
+      });
     }
 
-    if (this.elements.productCount) {
-      this.elements.productCount.textContent = `${products.length} ${products.length === 1 ? 'crystal' : 'crystals'} available`;
+    getOptimizedImageUrl(images) {
+      if (images && images[0] && images[0].src) {
+        return images[0].src.replace(/(\.[^\.]*$)/, '_600x600$1');
+      }
+      return 'https://via.placeholder.com/600x600/f8f9fa/6c757d?text=No+Image';
     }
 
-    if (this.elements.viewAllLink) {
-      this.elements.viewAllLink.href = `/collections/${this.config.collectionHandle}?filter.p.tag=${tag}`;
+    formatMoney(cents) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(cents / 100);
     }
 
-    products.forEach(product => {
-      const card = this.createProductCard(product);
-      this.elements.productsGrid.appendChild(card);
-    });
+    escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
-    this.initProductSlider();
+    handleError(error, gemstoneName) {
+      console.error(`❌ Error loading ${gemstoneName}:`, error);
 
-    setTimeout(() => {
       this.elements.previewLoading?.classList.add('hidden');
       this.elements.previewContent?.classList.remove('hidden');
       
+      if (this.elements.errorMessage) {
+        const errorText = this.elements.errorMessage.querySelector('p');
+        if (errorText) {
+          errorText.textContent = `Unable to load ${gemstoneName} products. Please try again.`;
+        }
+        this.elements.errorMessage.classList.remove('hidden');
+      }
+
       this.elements.gemstoneTags.forEach(tag => {
         tag.disabled = false;
         tag.style.opacity = '1';
@@ -617,186 +718,46 @@ class GemstoneGridManager {
 
       this.state.isLoading = false;
 
-      this.animateProductsIn();
+      this.announceStatus(`Error loading ${gemstoneName} products`);
+    }
 
-      this.announceStatus(`${products.length} ${gemstoneName} ${products.length === 1 ? 'crystal' : 'crystals'} loaded`);
-    }, 300);
-  }
-
-  createProductCard(product) {
-    const li = document.createElement('li');
-    li.className = 'splide__slide product-card opacity-0';
-    li.style.transform = 'translateY(20px)';
-
-    const imageUrl = this.getOptimizedImageUrl(product.images);
-    
-    li.innerHTML = `
-      <a href="/products/${product.handle}" class="block group" aria-label="View ${this.escapeHtml(product.title)}">
-        <div class="aspect-square rounded-lg overflow-hidden mb-4 bg-gray-100">
-          <img 
-            src="${imageUrl}" 
-            alt="${this.escapeHtml(product.title)}"
-            class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-            loading="lazy"
-          />
-        </div>
-        <h4 class="text-lg lg:text-xl font-medium group-hover:text-gray-600 transition-colors">
-          ${this.escapeHtml(product.title)}
-        </h4>
-        ${product.price ? `
-          <p class="text-gray-600 mt-1">
-            ${this.formatMoney(product.price)}
-          </p>
-        ` : ''}
-      </a>
-    `;
-
-    return li;
-  }
-
-  animateProductsIn() {
-    const cards = this.elements.productsGrid.querySelectorAll('.product-card');
-    
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
-    if (prefersReducedMotion || typeof gsap === 'undefined') {
-      cards.forEach(card => {
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      });
-      
-      if (this.elements.gradientOverlay) {
-        this.elements.gradientOverlay.style.opacity = '0';
+    announceStatus(message) {
+      if (this.elements.statusRegion) {
+        this.elements.statusRegion.textContent = message;
       }
-      return;
     }
-
-    gsap.to(cards, {
-      opacity: 1,
-      y: 0,
-      duration: this.config.animationSpeed / 1000,
-      stagger: 0.1,
-      ease: 'power2.out',
-      onComplete: () => {
-        if (this.elements.gradientOverlay) {
-          gsap.to(this.elements.gradientOverlay, {
-            opacity: 0,
-            duration: 0.5,
-            ease: 'power2.out'
-          });
-        }
+      if (this.tagSlider) {
+        this.tagSlider.destroy();
       }
-    });
-  }
-
-  getOptimizedImageUrl(images) {
-    if (images && images[0] && images[0].src) {
-      return images[0].src.replace(/(\.[^\.]*$)/, '_600x600$1');
-    }
-    return 'https://via.placeholder.com/600x600/f8f9fa/6c757d?text=No+Image';
-  }
-
-  formatMoney(cents) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(cents / 100);
-  }
-
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  handleError(error, gemstoneName) {
-    console.error(`❌ Error loading ${gemstoneName}:`, error);
-
-    this.elements.previewLoading?.classList.add('hidden');
-    this.elements.previewContent?.classList.remove('hidden');
-    
-    if (this.elements.errorMessage) {
-      const errorText = this.elements.errorMessage.querySelector('p');
-      if (errorText) {
-        errorText.textContent = `Unable to load ${gemstoneName} products. Please try again.`;
+      if (this.productSlider) {
+        this.productSlider.destroy();
       }
-      this.elements.errorMessage.classList.remove('hidden');
+      console.log('🧹 Gemstone Grid Manager cleaned up');
     }
 
-    this.elements.gemstoneTags.forEach(tag => {
-      tag.disabled = false;
-      tag.style.opacity = '1';
-    });
+    selectGemstoneByTag(tag) {
+      return this.selectGemstone(tag, false);
+    }
 
-    this.state.isLoading = false;
-
-    this.announceStatus(`Error loading ${gemstoneName} products`);
-  }
-
-  announceStatus(message) {
-    if (this.elements.statusRegion) {
-      this.elements.statusRegion.textContent = message;
+    getCurrentGemstone() {
+      return this.state.currentTag;
     }
   }
 
-  syncWatchTicks() {
-    // Sync the watch ticks background pattern with the tag slider position
-    if (!this.tagSlider) return;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGemstoneGrid);
+  } else {
+    initGemstoneGrid();
+  }
+
+  function initGemstoneGrid() {
+    const sectionId = '{{ section.id }}';
+    window['gemstoneGridManager_' + sectionId] = new GemstoneGridManager(sectionId);
     
-    const watchTicksPattern = this.container.querySelector('.watch-ticks-pattern');
-    if (!watchTicksPattern) return;
-    
-    // Get the current scroll position of the slider
-    const track = this.elements.tagsSlider.querySelector('.splide__track');
-    if (!track) return;
-    
-    const list = track.querySelector('.splide__list');
-    if (!list) return;
-    
-    // Get the transform value from the list
-    const transform = window.getComputedStyle(list).transform;
-    if (transform && transform !== 'none') {
-      const matrix = new DOMMatrix(transform);
-      const translateX = matrix.m41;
-      
-      // Apply the same transform to the watch ticks (inverted for parallax effect)
-      watchTicksPattern.style.transform = `translateX(${translateX * 0.3}px)`;
-    }
+    window['selectGemstone_' + sectionId] = function(tag) {
+      return window['gemstoneGridManager_' + sectionId].selectGemstoneByTag(tag);
+    };
   }
-
-  cleanup() {
-    if (this.tagSlider) {
-      this.tagSlider.destroy();
-    }
-    if (this.productSlider) {
-      this.productSlider.destroy();
-    }
-    console.log('🧹 Gemstone Grid Manager cleaned up');
-  }
-
-  selectGemstoneByTag(tag) {
-    return this.selectGemstone(tag, false);
-  }
-
-  getCurrentGemstone() {
-    return this.state.currentTag;
-  }
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initGemstoneGrid);
-} else {
-  initGemstoneGrid();
-}
-
-function initGemstoneGrid() {
-  const sectionId = '{{ section.id }}';
-  window['gemstoneGridManager_' + sectionId] = new GemstoneGridManager(sectionId);
-  
-  window['selectGemstone_' + sectionId] = function(tag) {
-    return window['gemstoneGridManager_' + sectionId].selectGemstoneByTag(tag);
-  };
-}
 </script>
 
 {% schema %}
