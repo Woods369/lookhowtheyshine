@@ -3,7 +3,7 @@
   Usage: {% render 'gemstone-menu' %}
 {%- endcomment -%}
 
-<div class="dropdown-item">
+<div class="dropdown-item z-10">
   <!-- Gemstone Toggle Button -->
   <button 
     class="dropdown-toggle w-full text-left py-2 px-6 text-gray-700 text-4xl hover:text-black transition-colors duration-150 cursor-pointer"
@@ -15,7 +15,9 @@
   
   <!-- Dropdown Content -->
   <div class="dropdown-items closed h-0 overflow-hidden">
-    {%- assign gemstone_handles = 'aventurine,amethyst,jasper,carnelian,citrine,selenite,agate,rose-quartz,tigers-eye,sodalite' | split: ',' -%}
+    {%- assign gemstone_handles = 
+      'aventurine,agate,amethyst,aventurine,black-moonstone,black-tourmaline,blue-calcite,blue-tigers-eye,carnelian,citrine,green-opal,jasper,labradorite,peach-moonstone,polychrome-jasper,purple-labradorite,rose-quartz,selenite,septarian,sodalite,tigers-eye' | split: ',' 
+    -%}
     
     {%- comment -%} Loop through collections and filter for gemstones {%- endcomment -%}
     {%- for collection in collections -%}

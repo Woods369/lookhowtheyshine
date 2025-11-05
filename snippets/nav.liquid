@@ -5,12 +5,18 @@
 
 
 <div class="menu-screen z-10 absolute left-[-110%] top-0 bottom-0 overflow-y-scroll  w-svw lg:w-[33vw] h-svh bg-white transition-left duration-300 grid place-items-center-start">
-  <div class="w-full pt-50">
-    <a href="/collections/all" class="menu-item block py-2 px-6 text-gray-700 font-thin text-4xl" >
-          View Shop
-        </a>
-            {% render 'gemstone-menu' %}
+  <div class="w-full pt-25 pb-50 relative">
+    <div class="menu-gradient sticky block h-50 top-0 left-0 right-0 bottom-50 z-20 pointer-events-none"></div>
+    <a href="/collections/all" class="menu-item block py-2 px-6 text-gray-700 font-thin text-4xl z-10" > View Shop </a>
+    {% render 'gemstone-menu' %}
     {% render 'seasonal-menu' %}
     {% render 'jewellery-menu' %}
   </div>
 </div>
+
+<style>
+  /* What is this in tailwind?? */
+  .menu-gradient {
+    background: linear-gradient(white 0 40%, transparent 100% 100%);
+  }
+</style>

@@ -14,11 +14,6 @@
     assign show_search = true
   elsif collection.handle == 'all'
     assign is_all_products = true
-    assign products = collections.all.products
-    assign products_count = collections.all.products_count
-    assign page_title = 'All Products'
-    assign container_id = 'all-products-shop'
-    assign show_search = true
   else
     assign is_collection_page = true
     assign products = collection.products
@@ -245,7 +240,7 @@
         </div>
 
         <!-- Product Grid -->
-        {% paginate products by section.settings.products_per_page %}
+        {% paginate collection.products by section.settings.products_per_page %}
           <div 
             class="product-grid grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
             id="product-grid"
@@ -298,8 +293,42 @@
 
           <!-- Pagination -->
           {% if paginate.pages > 1 %}
-            <nav class="flex items-center justify-center">
-              {{ paginate | default_pagination }}
+            <nav class="pagination flex items-center justify-center gap-3 mt-12" aria-label="Pagination">
+              {% if paginate.previous %}
+                <a href="{{ paginate.previous.url }}" class="pagination-arrow opacity-70 hover:opacity-100 transition-opacity px-3 py-2 text-gray-700" aria-label="Previous page">
+                  ← Prev
+                </a>
+              {% else %}
+                <span class="pagination-arrow opacity-30 px-3 py-2 text-gray-400 cursor-not-allowed">
+                  ← Prev
+                </span>
+              {% endif %}
+              
+              {% for part in paginate.parts %}
+                {% if part.is_link %}
+                  <a href="{{ part.url }}" class="pagination-number opacity-70 hover:opacity-100 transition-opacity px-4 py-2 text-gray-700 rounded hover:bg-gray-100">
+                    {{ part.title }}
+                  </a>
+                {% elsif part.title == paginate.current_page %}
+                  <span class="pagination-number pagination-current opacity-100 px-4 py-2 bg-gray-900 text-white rounded font-medium">
+                    {{ part.title }}
+                  </span>
+                {% else %}
+                  <span class="pagination-ellipsis opacity-50 px-2 text-gray-400">
+                    {{ part.title }}
+                  </span>
+                {% endif %}
+              {% endfor %}
+              
+              {% if paginate.next %}
+                <a href="{{ paginate.next.url }}" class="pagination-arrow opacity-70 hover:opacity-100 transition-opacity px-3 py-2 text-gray-700" aria-label="Next page">
+                  Next →
+                </a>
+              {% else %}
+                <span class="pagination-arrow opacity-30 px-3 py-2 text-gray-400 cursor-not-allowed">
+                  Next →
+                </span>
+              {% endif %}
             </nav>
           {% endif %}
 

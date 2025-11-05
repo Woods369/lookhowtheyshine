@@ -12,7 +12,7 @@
         <!-- Cart Items -->
         <div class="cart-items mb-16">
           {% for item in cart.items %}
-            <div class="cart-item bg-white p-6 rounded-lg border-2 border-black mb-6">
+            <div class="cart-item bg-white p-6 rounded-lg mb-6">
               <div class="flex flex-col md:flex-row gap-6">
                 
                 <!-- Product Image -->
@@ -20,7 +20,7 @@
                   {% if item.image %}
                     <img src="{{ item.image | image_url: width: 300 }}" 
                          alt="{{ item.image.alt | escape }}" 
-                         class="w-full h-full object-cover rounded border-2 border-black">
+                         class="w-full h-full object-cover">
                   {% endif %}
                 </div>
                 
@@ -64,7 +64,7 @@
         </div>
         
         <!-- Cart Totals & Actions -->
-        <div class="cart-footer bg-white p-8 rounded-lg border-4 border-black mt-16">
+        <div class="cart-footer bg-white p-8 rounded-lg mt-16">
           <div class="flex flex-col md:flex-row justify-between items-center gap-8">
             
             <!-- Totals -->

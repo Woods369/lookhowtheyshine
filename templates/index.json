@@ -81,13 +81,14 @@
       "settings": {
         "collection_list": [
           "advent-calendar",
-          "christmas",
-          "halloween",
-          "heart",
+          "candles",
+          "gemstones",
+          "jewellery",
+          "lamps",
           "trees"
         ],
-        "default_collection": "",
-        "fallback_collection": "halloween",
+        "default_collection": "trees",
+        "fallback_collection": "advent-calendar",
         "enable_auto_select": true,
         "auto_select_delay": 200,
         "products_preview_count": 2,

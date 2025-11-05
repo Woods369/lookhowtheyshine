@@ -11,5 +11,6 @@ frontend/dist
 # Ignore deployment artifacts
 theme.zip
 .env
-
+backups/
+backups/*
 config.yml

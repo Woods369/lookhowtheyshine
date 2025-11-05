@@ -19,9 +19,12 @@
   
   <!-- Collections Sidebar -->
   <div class="lg:w-1/4">
-    <h2 class="text-lg lg:text-4xl mb-6 hidden font-bold md:block">{{ 'collections.title' | t }}</h1>
+    <h2 class="text-lg lg:text-4xl mb-6 hidden font-bold md:block">{{ 'collections.featured_title' | t }}</h1>
     
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
+      <button class="w-max p-2 px-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
+        <a href="/collections/all" class="text-md lg:text-2xl xl:text-3xl font-thin w-max block md:flex">Shop All</a>
+      </button>
       {% if section.settings.collection_list %}
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
@@ -36,6 +39,10 @@
             <button class="collection-link text-left w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
               <span class="text-2xl lg:text-3xl font-thin w-max">{{ collection.title }}</span>
             </button>
+
+            {% form 'aa', product %}
+              
+            {% endform %}
           {% endunless %}
         {% endfor %}
       {% endif %}
