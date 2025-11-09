@@ -726,6 +726,24 @@
         this.elements.statusRegion.textContent = message;
       }
     }
+
+    syncWatchTicks() {
+      if (!this.tagSlider) return;
+      const watchTicksPattern = this.container.querySelector('.watch-ticks-pattern');
+      if (!watchTicksPattern) return;
+      const track = this.elements.tagsSlider.querySelector('.splide__track');
+      if (!track) return;
+      const list = track.querySelector('.splide__list');
+      if (!list) return;
+      const transform = window.getComputedStyle(list).transform;
+      if (transform && transform !== 'none') {
+        const matrix = new DOMMatrix(transform);
+        const translateX = matrix.m41;
+        watchTicksPattern.style.transform = `translateX(${translateX * 0.5}px)`;
+      }
+    }
+
+    cleanup() {
       if (this.tagSlider) {
         this.tagSlider.destroy();
       }
