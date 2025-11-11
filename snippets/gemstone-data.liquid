@@ -1,0 +1,16 @@
+{%- comment -%}
+    Global Gemstone Data
+    Usage: {% render 'gemstone-data' %}
+    via: gemstone_list
+{%- endcomment -%}
+
+{%- comment -%}
+  Fetch all gemstone metaobjects and export as variables
+{%- endcomment -%}
+
+{%- assign gemstone_metaobjects = shop.metaobjects.gemstone.values -%}
+{%- assign gemstone_list = '' | split: '' -%}
+
+{%- for gemstone in gemstone_metaobjects -%}
+  {%- assign gemstone_list = gemstone_list | push: gemstone -%}
+{%- endfor -%}

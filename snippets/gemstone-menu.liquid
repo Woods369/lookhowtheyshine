@@ -3,6 +3,8 @@
   Usage: {% render 'gemstone-menu' %}
 {%- endcomment -%}
 
+{% assign gemstones = shop.metaobjects.gemstone.values %}
+
 <div class="dropdown-item z-10">
   <!-- Gemstone Toggle Button -->
   <button 
@@ -19,19 +21,19 @@
       'aventurine,agate,amethyst,aventurine,black-moonstone,black-tourmaline,blue-calcite,blue-tigers-eye,carnelian,citrine,green-opal,jasper,labradorite,peach-moonstone,polychrome-jasper,purple-labradorite,rose-quartz,selenite,septarian,sodalite,tigers-eye' | split: ',' 
     -%}
     
-    {%- comment -%} Loop through collections and filter for gemstones {%- endcomment -%}
-    {%- for collection in collections -%}
-      {%- if gemstone_handles contains collection.handle -%}
-        {%- if collection.products_count > 0 -%}
-          <a 
-            href="{{ collection.url }}" 
+    {% for gemstone in gemstones %}
+          {% assign tag = gemstone.product_tag.value | downcase %}
+          {% assign primary_color = gemstone.primary_color | downcase %}
+          {% assign attached_collection = gemstone.collection %}
+          <button 
+            type="button"
             class="menu-item block py-2 px-10 text-gray-700 font-thin text-2xl hover:text-gray-200 transition-all duration-300"
+            data-tag="{{ tag }}"
+            data-color="{{ primary_color }}"
+            data-collection="{{ attached_collection }}"
           >
-            {{ collection.title }}
-            <span class="text-sm text-gray-400">({{ collection.products_count }})</span>
-          </a>
-        {%- endif -%}
-      {%- endif -%}
-    {%- endfor -%}
+            {{ gemstone.display_name.value }}
+          </button>
+        {% endfor %}
   </div>
 </div>

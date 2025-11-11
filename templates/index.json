@@ -105,58 +105,8 @@
     "gemstone_grid_B9J9GC": {
       "type": "gemstone-grid",
       "blocks": {
-        "gemstone_tag_UY4NVY": {
-          "type": "gemstone_tag",
-          "settings": {
-            "gemstone_name": "Amethyst",
-            "product_tag": "amethyst",
-            "primary_color": "#9966cc",
-            "secondary_color": ""
-          }
-        },
-        "gemstone_tag_kGxHq6": {
-          "type": "gemstone_tag",
-          "settings": {
-            "gemstone_name": "Selenite",
-            "product_tag": "selenite",
-            "primary_color": "#f0ead6",
-            "secondary_color": ""
-          }
-        },
-        "gemstone_tag_8qgtb8": {
-          "type": "gemstone_tag",
-          "settings": {
-            "gemstone_name": "Agate",
-            "product_tag": "agate",
-            "primary_color": "#cd853f",
-            "secondary_color": ""
-          }
-        },
-        "gemstone_tag_jwHfyx": {
-          "type": "gemstone_tag",
-          "settings": {
-            "gemstone_name": "Rose Quartz",
-            "product_tag": "rose quartz",
-            "primary_color": "#ff69b4",
-            "secondary_color": ""
-          }
-        },
-        "gemstone_tag_z8PYdR": {
-          "type": "gemstone_tag",
-          "settings": {
-            "gemstone_name": "Sodalite",
-            "product_tag": "sodalite",
-            "primary_color": "#1e3a8a",
-            "secondary_color": ""
-          }
-        }
       },
       "block_order": [
-        "gemstone_tag_UY4NVY",
-        "gemstone_tag_kGxHq6",
-        "gemstone_tag_8qgtb8",
-        "gemstone_tag_jwHfyx",
-        "gemstone_tag_z8PYdR"
       ],
       "name": "Gemstone Grid",
       "settings": {

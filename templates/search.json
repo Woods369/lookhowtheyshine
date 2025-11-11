@@ -4,10 +4,10 @@
       "type": "collection",
       "settings": {
         "products_per_page": 24,
-        "enable_filtering": false,
+        "enable_filtering": true,
         "enable_sorting": true,
         "enable_search": true,
-        "show_collection_description": false
+        "show_collection_description":false
       }
     }
   },
