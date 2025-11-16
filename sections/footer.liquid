@@ -13,17 +13,44 @@
   </div>
   
 
-    <div class="footer__payment ">
+    <div class="footer__payment">
     {% if section.settings.show_payment_icons %}
-      <div class="flex flex-wrap justify-center px-0 md:px-20 py-20 space-2 md:flew-row space-x-2 mb-4">
+      <div class="flex flex-wrap justify-center px-0 md:px-20 space-2 md:flew-row space-x-2 mb-4">
         {% for type in shop.enabled_payment_types %}
-          {{ type | payment_type_svg_tag: class: 'h-3 md:h-6 w-5 md:w-10 fill-current' }}
+          {{ type | payment_type_svg_tag: class: 'h-3 w-5 fill-current' }}
         {% endfor %}
       </div>
     {% endif %}
 </div>
-  <p class="text-sm text-gray-400">© {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+  <p class="text-xs text-black pb-3">© {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
 </div>
+
+{% style %}
+  /* .footer__payment {
+    position: relative;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: invert(1) brightness(0.8);
+    -webkit-backdrop-filter: invert(1) brightness(0.8);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+  } */
+
+  /* .footer__payment svg {
+    filter: brightness(0) invert(0);
+  } */
+
+  /* .footer__payment::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 8px;
+    z-index: -1;
+  } */
+{% endstyle %}
 
 {% schema %}
   {
