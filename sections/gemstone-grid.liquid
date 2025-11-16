@@ -20,7 +20,7 @@
           
           {% if attached_collection %}
             {% assign collection_handle = attached_collection.handle %}
-            <a href="/collections/{{ collection_handle }}"
+            <a href="{{ routes.collections_url }}/{{ collection_handle }}"
               class="gemstone-btn px-6 py-3 text-gray-800 border-2 border-transparent transition-all duration-200 text-xl whitespace-nowrap cursor-pointer hover:scale-105"
               style="--color: {{ primary_color }}"
             >

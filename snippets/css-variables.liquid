@@ -4,17 +4,10 @@
   {{ settings.type_heading_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
   {{ settings.type_heading_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {{ settings.type_heading_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-
-
   {{ settings.type_body_font | font_face: font_display: 'swap' }}
   {{ settings.type_body_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
   {{ settings.type_body_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {{ settings.type_body_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-
-  {%- comment -%}
-    This file contains CSS variables for the theme.
-    It is used to set the primary fonts and colors.
-  {%- endcomment -%}
 
   :root {
     --font-primary--heading: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
@@ -24,8 +17,6 @@
     --font-primary--body: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
     --font-primary--body-style: {{ settings.type_body_font.style }};
     --font-primary--body-weight: {{ settings.type_body_font.weight }};
-
-
 
     --page-width: {{ settings.max_page_width }};
     --page-margin: {{ settings.min_page_margin }}px;

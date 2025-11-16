@@ -8,32 +8,43 @@
 <div class="dropdown-item z-10">
   <!-- Gemstone Toggle Button -->
   <button 
-    class="dropdown-toggle w-full text-left py-2 px-6 text-gray-700 text-4xl hover:text-black transition-colors duration-150 cursor-pointer"
+    class="dropdown-toggle w-full text-left 
+          py-2 px-6 text-gray-700 text-4xl 
+          hover:text-black transition-colors 
+          duration-150 cursor-pointer"
     aria-expanded="false"
-    aria-haspopup="true"
-  >
+    aria-haspopup="true">
     Gemstones
   </button>
   
   <!-- Dropdown Content -->
-  <div class="dropdown-items closed h-0 overflow-hidden">
-    {%- assign gemstone_handles = 
-      'aventurine,agate,amethyst,aventurine,black-moonstone,black-tourmaline,blue-calcite,blue-tigers-eye,carnelian,citrine,green-opal,jasper,labradorite,peach-moonstone,polychrome-jasper,purple-labradorite,rose-quartz,selenite,septarian,sodalite,tigers-eye' | split: ',' 
-    -%}
-    
+  <div class="dropdown-items closed h-0 overflow-hidden">    
     {% for gemstone in gemstones %}
-          {% assign tag = gemstone.product_tag.value | downcase %}
-          {% assign primary_color = gemstone.primary_color | downcase %}
-          {% assign attached_collection = gemstone.collection %}
+      {% assign tag = gemstone.product_tag.value | downcase %}
+      {% assign primary_color = gemstone.primary_color | downcase %}
+      {% assign attached_collection = gemstone.collection.value %}
+      {% assign link_class = "menu-item block py-2 px-10 text-gray-700 font-thin text-2xl hover:text-gray-200 transition-all duration-300" %}
+      {% if attached_collection %}
+        {% assign collection_handle = attached_collection.handle %}
+        <a href="{{ routes.collections_url }}/{{ collection_handle }}"
+        class="{{ link_class }}"
+        style="--color: {{ primary_color }}"
+        >
+          {{ gemstone.display_name.value }}
+        </a>
+
+        {% else %}
+
           <button 
-            type="button"
-            class="menu-item block py-2 px-10 text-gray-700 font-thin text-2xl hover:text-gray-200 transition-all duration-300"
-            data-tag="{{ tag }}"
-            data-color="{{ primary_color }}"
-            data-collection="{{ attached_collection }}"
+          type="button"
+          class="{{ link_class }}"
+          data-tag="{{ tag }}"
+          data-color="{{ primary_color }}"
+          data-collection="{{ attached_collection }}"
           >
-            {{ gemstone.display_name.value }}
+          {{ gemstone.display_name.value }}
           </button>
-        {% endfor %}
+      {% endif %}
+      {% endfor %}
   </div>
 </div>

@@ -104,22 +104,9 @@
     },
     "gemstone_grid_B9J9GC": {
       "type": "gemstone-grid",
-      "blocks": {
-      },
-      "block_order": [
-      ],
       "name": "Gemstone Grid",
       "settings": {
-        "heading": "Explore Our Gemstones",
-        "collection": "",
-        "enable_auto_select": true,
-        "auto_select_delay": 800,
-        "products_to_show": 8,
-        "animation_speed": 400,
-        "tag_gap": 1,
-        "columns_desktop": 4,
-        "columns_mobile": 2,
-        "product_gap": 1.5
+        "heading": "Explore Our Gemstones"
       }
     }
   },

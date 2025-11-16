@@ -1,26 +1,27 @@
-<div class="footer-content h-48 flex flex-col justify-center items-center text-center">
-  <h3 class="text-2xl font-bold mb-4">Look How They Shine</h3>
+<div class="footer-content flex flex-col justify-center items-center text-center">
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="footer-nav mb-6 text-left">
+      {% if section.settings.menu != blank %}
+        <h2 class="text-black font-bold"> Legals</h2>
+        <ul class="flex space-x-6">
+          {% for link in linklists[section.settings.menu].links %}
+            <li><a href="{{ link.url }}" class="text-black hover:text-gray-300 transition-colors">{{ link.title }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </nav>
+  </div>
   
-  <nav class="footer-nav mb-6">
-    {% if section.settings.menu != blank %}
-      <ul class="flex space-x-6">
-        {% for link in linklists[section.settings.menu].links %}
-          <li><a href="{{ link.url }}" class="hover:text-gray-300 transition-colors">{{ link.title }}</a></li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  </nav>
-  
-  <div class="footer__payment ">
+
+    <div class="footer__payment ">
     {% if section.settings.show_payment_icons %}
-      <div class="flex flex-wrap justify-center px-20 py-50 space-2 md:flew-row space-x-2 mb-4">
+      <div class="flex flex-wrap justify-center px-0 md:px-20 py-20 space-2 md:flew-row space-x-2 mb-4">
         {% for type in shop.enabled_payment_types %}
-          {{ type | payment_type_svg_tag: class: 'h-6 w-10 fill-current' }}
+          {{ type | payment_type_svg_tag: class: 'h-3 md:h-6 w-5 md:w-10 fill-current' }}
         {% endfor %}
       </div>
     {% endif %}
-  </div>
-  
+</div>
   <p class="text-sm text-gray-400">© {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
 </div>
 

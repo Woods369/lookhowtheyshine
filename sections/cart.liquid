@@ -18,9 +18,11 @@
                 <!-- Product Image -->
                 <div class="cart-item-image w-full md:w-32">
                   {% if item.image %}
-                    <img src="{{ item.image | image_url: width: 300 }}" 
-                        alt="{{ item.image.alt | escape }}" 
-                        class="w-full h-full object-cover">
+                  <img src="{{ item.image | image_url: width: 300, height: 300 }}" 
+                      alt="{{ item.image.alt | escape }}" 
+                      width="{{ item.image.width }}" 
+                      height="{{ item.image.height }}"
+                      class="w-full h-full object-cover">
                   {% endif %}
                 </div>
                 

@@ -1,9 +1,13 @@
 {% comment %}
-  Unified collection section - handles collections, search, and all products
+  handles collections, search, and all products
   Context-aware with dynamic filtering and search capabilities
 {% endcomment %}
 
+
+
 {% liquid
+
+  assign show_search = true
   # Context detection and data source assignment
   if template.name == 'search'
     assign is_search_page = true
@@ -11,7 +15,6 @@
     assign products_count = search.results_count
     assign page_title = 'Search Results'
     assign container_id = 'search-results'
-    assign show_search = true
   elsif collection.handle == 'all'
     assign is_all_products = true
   else
@@ -20,7 +23,6 @@
     assign products_count = collection.products_count
     assign page_title = collection.title
     assign container_id = 'collection-with-filters'
-    assign show_search = section.settings.enable_search
   endif
 %}
 
@@ -82,7 +84,7 @@
       <!-- Sidebar Filters (Collection pages only) -->
       {% if section.settings.enable_filtering and is_collection_page %}
         <aside 
-          class="lg:col-span-4 xl:col-span-3 sticky top-24 bg-white z-100" 
+          class="lg:col-span-4 xl:col-span-3 sticky top-30 bg-white z-20" 
           id="sidebar-filters"
           style="display: none; height: fit-content;"
         >
@@ -248,12 +250,12 @@
           >
             {% for product in products %}
               <div class="product-card group" 
-                   data-product-title="{{ product.title | escape | downcase }}"
-                   data-product-price="{{ product.price | money_without_currency | remove: ',' | strip }}"
-                   data-product-vendor="{{ product.vendor | escape | downcase }}"
-                   data-product-type="{{ product.type | escape | downcase }}"
-                   data-product-tags="{{ product.tags | join: ',' | downcase }}"
-                   data-product-collections="{% for collection in product.collections %}{{ collection.handle | downcase }}{% unless forloop.last %},{% endunless %}{% endfor %}">
+                data-product-title="{{ product.title | escape | downcase }}"
+                data-product-price="{{ product.price | money_without_currency | remove: ',' | strip }}"
+                data-product-vendor="{{ product.vendor | escape | downcase }}"
+                data-product-type="{{ product.type | escape | downcase }}"
+                data-product-tags="{{ product.tags | join: ',' | downcase }}"
+                data-product-collections="{% for collection in product.collections %}{{ collection.handle | downcase }}{% unless forloop.last %},{% endunless %}{% endfor %}">
                 <a href="{{ product.url }}" class="block">
                   <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                     {% if product.featured_image %}
@@ -261,8 +263,7 @@
                         class: 'w-full h-full object-cover group-hover:scale-105 transition-transform',
                         image: product.featured_image,
                         width: 400,
-                        height: 400,
-                        loading: 'lazy'
+                        height: 400
                       %}
                     {% else %}
                       <div class="w-full h-full flex items-center justify-center bg-gray-200">
