@@ -2,8 +2,8 @@
   <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <nav class="footer-nav mb-6 text-left">
       {% if section.settings.menu != blank %}
-        <h2 class="text-black font-bold"> Legals</h2>
-        <ul class="flex space-x-6">
+        <h2 class="text-black font-bold mb-2"> Legals</h2>
+        <ul class="grid grid-cols-1">
           {% for link in linklists[section.settings.menu].links %}
             <li><a href="{{ link.url }}" class="text-black hover:text-gray-300 transition-colors">{{ link.title }}</a></li>
           {% endfor %}
@@ -22,7 +22,7 @@
       </div>
     {% endif %}
 </div>
-  <p class="text-xs text-black pb-3">© {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+  <p class="text-xs text-black mb-3">© {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
 </div>
 
 {% style %}
