@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>  
+    {% render 'meta-tags' %}
+    {% render 'css-essentials' %}
+    {% render 'js-gsap' %}
+    {% render 'js-tailwind' %}
+
+    <script defer src="{{ 'app.js' | asset_url }}"></script>
+    {% render 'meta-favicon' %}
+    {{ content_for_header }}
+    <style>
+    </style>
+  </head>
+  {%  render 'js-klaviyo' %}

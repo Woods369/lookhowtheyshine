@@ -60,131 +60,39 @@
 {% endstyle %}
 
 {% javascript %}
-  (function() {
-    const header = document.querySelector('header');
-    const menu = document.querySelector('.menu');
-    const menuScreen = document.querySelector('.menu-screen');
+  let header = document.querySelector('header');
+  let menu = document.querySelector('.menu');
+  let menuScreen = document.querySelector('.menu-screen');
+  
+  // Flags 
+  let is_open = false;
 
-    if (!header || !menu || !menuScreen) return;
+  gsap.registerPlugin(MorphSVGPlugin);
 
-    gsap.registerPlugin(MorphSVGPlugin);
+    menu.addEventListener('click', (event) => {
+      header.classList.toggle('open');
 
-    class MenuDrawer {
-      constructor({ header, toggle, screen }) {
-        this.header = header;
-        this.toggle = toggle;
-        this.screen = screen;
-        this.isOpen = this.header.classList.contains('open');
+      if (!is_open) {
+        gsap.to("#menu-1", { duration: 1, morphSVG: "#menu-close-1" });
+        gsap.to('#menu-2', { duration: 1, morphSVG: "#menu-close-2" });
 
-        this.boundOnToggle = this.onToggle.bind(this);
-        this.boundOnKeydown = this.onKeydown.bind(this);
-        this.boundOnDocumentClick = this.onDocumentClick.bind(this);
-
-        this.init();
-      }
-
-      init() {
-        this.toggle.addEventListener('click', this.boundOnToggle);
-        document.addEventListener('keydown', this.boundOnKeydown);
-        document.addEventListener('click', this.boundOnDocumentClick);
-
-        // Listen for cart opening to close menu
-        document.addEventListener('cart:open', () => this.close());
-      }
-
-      open() {
-        if (this.isOpen) return;
-        this.header.classList.add('open');
-        this.isOpen = true;
-
-        // Close cart drawer if present
-        if (window.cartDrawer && typeof window.cartDrawer.close === 'function') {
-          try {
-            window.cartDrawer.close();
-          } catch (e) {
-            console.warn('Could not close cart drawer:', e);
-          }
-        }
-
-        // Dispatch event for other components
-        document.dispatchEvent(new CustomEvent('menu:open'));
-        
-        // Morph hamburger to X
-        this.morphToClose();
-      }
-
-      close() {
-        if (!this.isOpen) return;
-        this.header.classList.remove('open');
-        this.isOpen = false;
-
-        // Dispatch event for other components
-        document.dispatchEvent(new CustomEvent('menu:close'));
-        
-        // Morph X back to hamburger
-        this.morphToOpen();
-      }
-
-      toggleState() {
-        this.isOpen ? this.close() : this.open();
-      }
-
-      onToggle(e) {
-        // Prevent outside-click handler from firing on same event
-        e.stopPropagation();
-        this.toggleState();
-      }
-
-      onKeydown(e) {
-        if (e.key === 'Escape' || e.key === 'Esc') {
-          this.close();
-        }
-      }
-
-      onDocumentClick(e) {
-        if (!this.isOpen) return;
-        
-        const target = e.target;
-        // Don't close if clicking inside the menu screen
-        if (this.screen.contains(target)) return;
-        // Don't close if clicking the toggle button (handled by onToggle)
-        if (this.toggle.contains(target)) return;
-        
-        // Close if clicking outside
-        this.close();
-      }
-
-      morphToClose() {
-        gsap.to('#menu-1', { duration: 1, morphSVG: '#menu-close-1' });
-        gsap.to('#menu-2', { duration: 1, morphSVG: '#menu-close-2' });
-      }
-
-      morphToOpen() {
-        gsap.to('#menu-1', { duration: 1, morphSVG: '#menu-1' });
-        gsap.to('#menu-2', { duration: 1, morphSVG: '#menu-2' });
-      }
-    }
-
-    // Initialize and expose globally
-    window.menuDrawer = new MenuDrawer({ 
-      header: header, 
-      toggle: menu, 
-      screen: menuScreen 
-    });
-
-    // Preserve existing scroll effect for header background
-    const onScroll = () => {
-      if (window.scrollY > 50) {
-        header.classList.add('scrolled');
+        is_open = true;
       } else {
-        header.classList.remove('scrolled');
+        gsap.to("#menu-1", { duration: 1, morphSVG: "#menu-1" });
+        gsap.to("#menu-2", { duration: 1, morphSVG: "#menu-2" })
+
+        is_open = false;
       }
-    };
-    
-    window.addEventListener('scroll', onScroll);
-    // Call once on init to set initial state
-    onScroll();
-  })();
+  })
+
+  window.addEventListener('scroll', (event) => {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
 {% endjavascript %}
 
 {% schema %}

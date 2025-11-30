@@ -94,7 +94,7 @@
         "id": "logo",
         "label": "t:labels.logo"
       },
-            {
+      {
         "type": "image_picker",
         "id": "favicon",
         "label": "t:labels.favicon"
@@ -104,6 +104,32 @@
         "id": "company_name",
         "label": "t:labels.company_name",
         "default": "Look How They Shine"
+      }
+    ]
+  },
+  {
+    "name": "t:general.seasonal",
+
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "is_easter",
+        "label": "Easter"
+      },
+      {
+        "type": "checkbox",
+        "id": "is_halloween",
+        "label": "Halloween"
+      },
+      {
+        "type": "checkbox",
+        "id": "is_black_friday",
+        "label": "Black Friday"
+      },
+      {
+        "type": "checkbox",
+        "id": "is_xmas",
+        "label": "Christmas"
       }
     ]
   }

@@ -1,0 +1,65 @@
+{% comment %}
+  Renders pagination for collection/search results
+  
+  Accepts:
+  - paginate: {Object} Paginate object
+  
+  Usage:
+  {% render 'pagination', paginate: paginate %}
+{% endcomment %}
+
+{% if paginate.pages > 1 %}
+  <nav class="pagination flex items-center justify-center gap-3 mt-12" aria-label="Pagination">
+    
+    <!-- Previous Button -->
+    {% if paginate.previous %}
+      <a 
+        href="{{ paginate.previous.url }}" 
+        class="pagination-arrow opacity-70 hover:opacity-100 transition-opacity px-3 py-2 text-gray-700" 
+        aria-label="Previous page"
+      >
+        ← Prev
+      </a>
+    {% else %}
+      <span class="pagination-arrow opacity-30 px-3 py-2 text-gray-400 cursor-not-allowed">
+        ← Prev
+      </span>
+    {% endif %}
+    
+    <!-- Page Numbers -->
+    {% for part in paginate.parts %}
+      {% if part.is_link %}
+        <a 
+          href="{{ part.url }}" 
+          class="pagination-number opacity-70 hover:opacity-100 transition-opacity px-4 py-2 text-gray-700 rounded hover:bg-gray-100"
+        >
+          {{ part.title }}
+        </a>
+      {% elsif part.title == paginate.current_page %}
+        <span class="pagination-number pagination-current opacity-100 px-4 py-2 bg-gray-900 text-white rounded font-medium">
+          {{ part.title }}
+        </span>
+      {% else %}
+        <span class="pagination-ellipsis opacity-50 px-2 text-gray-400">
+          {{ part.title }}
+        </span>
+      {% endif %}
+    {% endfor %}
+    
+    <!-- Next Button -->
+    {% if paginate.next %}
+      <a 
+        href="{{ paginate.next.url }}" 
+        class="pagination-arrow opacity-70 hover:opacity-100 transition-opacity px-3 py-2 text-gray-700" 
+        aria-label="Next page"
+      >
+        Next →
+      </a>
+    {% else %}
+      <span class="pagination-arrow opacity-30 px-3 py-2 text-gray-400 cursor-not-allowed">
+        Next →
+      </span>
+    {% endif %}
+    
+  </nav>
+{% endif %}

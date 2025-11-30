@@ -34,7 +34,8 @@
     "theme": "Theme",
     "typography": "Typography",
     "heading_font": "Heading font",
-    "body_font": "Body font"
+    "body_font": "Body font",
+    "seasonal": "Seasonal"
   },
   "labels": {
     "alignment": "Alignment",
@@ -47,7 +48,6 @@
     "menu": "Menu",
     "logo-size": "Logo size",
     "header-logo": "Header logo",
-
     "padding": "Padding",
     "page_margin": "Page margin",
     "page_width": "Page width",
@@ -56,7 +56,8 @@
     "text": "Text",
     "favicon": "Favicon",
     "logo": "Logo",
-    "company_name": "Company name"
+    "company_name": "Company name",
+    "seasonal": "Seasonal"
   },
   "options": {
     "alignment": {

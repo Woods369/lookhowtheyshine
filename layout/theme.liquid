@@ -1,86 +1,31 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
   <head>  
-    {% render 'css-variables' %}
-    <link href="{{ 'critical.css' | asset_url }}">
-
-    {% # theme-check-disable ParserBlockingScript %}
-    <script src="{{ 'tailwind-browser.min.js' | asset_url }}"></script>
-    {% # theme-check-enable ParserBlockingScript %}
-
-    {% # Early JavaScript for animations %}
-    <script defer src="{{ 'gsap.min.js' | asset_url }}"></script>
-    <script defer src="{{ 'morphsvg-plugin.min.js' | asset_url }}"></script>
-    <script defer src="{{ 'main.js' | asset_url }}"></script>
-
-    <link rel="stylesheet" href="{{ 'splide.min.css' | asset_url }}">
-
-    {% # Meta tags and favicon %}
     {% render 'meta-tags' %}
-    {% if settings.favicon %}<link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">{% endif %}
+    {% render 'css-essentials' %}
+    {% render 'js-gsap' %}
+    {% render 'js-tailwind' %}
 
+    <script defer src="{{ 'app.js' | asset_url }}" type="module"></script>
+    {% render 'meta-favicon' %}
     {{ content_for_header }}
-
-
-    <style>
-      body:has( > .main-content > header.open ) {
-        max-height: 100svh;
-        
-        overflow: hidden;
-
-      }
-    </style>
   </head>
-  {% # theme-check-disable RemoteAsset %}
-  <script async type='text/javascript' src='https://static.klaviyo.com/onsite/js/TNPuJF/klaviyo.js?company_id=TNPuJF'></script>
-  {% # theme-check-enable RemoteAsset %}
-  <script type="text/javascript">
-
-  //Initialize Klaviyo object on page load
-  !function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}(); </script>
+  {%  render 'js-klaviyo' %}
 
   <body class="bg-white{% if template.name == 'index' %} home {% endif %}">
-    <div class="main-content z-20 relative">
-      {% sections 'header-group' %}
-      {{ content_for_layout }}
-    </div>
-    
-    {% sections 'footer-group' %}
-    
-    {% render 'cart-drawer' %}
-    <script defer src="{{ 'splide.min.js' | asset_url }}"></script>
+      <div class="main-content z-20 relative min-h-[100vh]">
+        {% sections 'header-group' %}
+        {{ content_for_layout }}
+      </div>
+      
+      {% sections 'footer-group' %}
+      {% render 'cart-drawer' %}
 
-    {% # Cart form interceptor - handles AJAX submissions %}
-    <script>
-      document.addEventListener("submit", function(e) {
-        if (e.target.action && e.target.action.includes("cart/add")) {
-          // e.preventDefault();
-          // handleCartSubmission(e.target);
-          // return false;
-        }
-      }, true);
+      {% if settings.is_black_friday %}
+        {% render 'black-friday-banner' %}
+      {% endif %}
 
-      async function handleCartSubmission(form) {
-        const formData = new FormData(form);
-        const button = form.querySelector('[type="submit"]');
-        if (button) { button.textContent = "Adding..."; button.disabled = true; }
-        try {
-          const response = await fetch("/cart/add.json", { method: "POST", body: formData });
-          if (response.ok) {
-            setTimeout(() => {
-              if (window.cartDrawer) { window.cartDrawer.open(); } else { alert("Item added to cart!"); }
-            }, 200);
-          } else {
-            alert("Sorry, this item could not be added to your cart.");
-          }
-        } catch (error) {
-          alert("Sorry, there was a problem adding this item to your cart. Please try again.");
-        } finally {
-          if (button) { button.textContent = "Add to cart"; button.disabled = false; }
-        }
-      }
-    </script>
-
-  <script src="{{ 'tiny-img-link-preloader.js' | asset_url }}" defer></script>
-</body>
+      <script defer src="{{ 'splide.min.js' | asset_url }}"></script>
+    <script src="{{ 'tiny-img-link-preloader.js' | asset_url }}" defer></script>
+  </body>
 </html>

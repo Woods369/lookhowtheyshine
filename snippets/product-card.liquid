@@ -1,0 +1,68 @@
+{% comment %}
+  Renders a product card for collection grids
+  
+  Accepts:
+  - product: {Object} Product object
+  
+  Usage:
+  {% render 'product-card', product: product %}
+{% endcomment %}
+
+<div class="product-card group">
+  <a href="{{ product.url }}" class="block">
+    <!-- Product Image -->
+    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow">
+      {% if product.featured_image %}
+        <img
+          src="{{ product.featured_image | image_url: width: 400 }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+          width="400"
+          height="400"
+        >
+      {% else %}
+        <div class="w-full h-full flex items-center justify-center bg-gray-200">
+          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      {% endif %}
+
+      <!-- Sale Badge -->
+      {% if product.compare_at_price > product.price %}
+        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+          Sale
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Product Info -->
+    <div class="mt-4">
+      <h3 class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+        {{ product.title | escape }}
+      </h3>
+      
+      <!-- Price -->
+      <p class="mt-1 text-sm text-gray-500">
+        {% if product.compare_at_price > product.price %}
+          <span class="line-through text-gray-400 mr-2">
+            {{ product.compare_at_price | money }}
+          </span>
+          <span class="text-red-600 font-medium">
+            {{ product.price | money }}
+          </span>
+        {% else %}
+          {{ product.price | money }}
+        {% endif %}
+      </p>
+
+      <!-- Variant count (optional) -->
+      {% if product.variants.size > 1 %}
+        <p class="mt-1 text-xs text-gray-400">
+          {{ product.variants.size }} variants
+        </p>
+      {% endif %}
+    </div>
+  </a>
+</div>
