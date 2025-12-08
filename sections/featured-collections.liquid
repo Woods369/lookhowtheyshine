@@ -5,31 +5,30 @@
 
 <div class="p-6 flex flex-col lg:flex-row gap-8 lg:mx-20 relative lg:min-h-[550px]">
   
-  <!-- Halloween Blood Drop Effect -->
-  {% if section.settings.enable_blood_drop %}
-    {% render 'blood-drop',
-      x_position: section.settings.blood_x_position,
-      y_position: section.settings.blood_y_position,
-      size: section.settings.blood_size,
-      color: section.settings.blood_color,
-      goo_particles: section.settings.goo_particles,
-      speed: section.settings.animation_speed
-    %}
-  {% endif %}
+  {% if settings.is_halloween %}
+    {% if section.settings.enable_blood_drop %}
+      {% render 'blood-drop',
+        x_position: section.settings.blood_x_position,
+        y_position: section.settings.blood_y_position,
+        size: section.settings.blood_size,
+        color: section.settings.blood_color,
+        goo_particles: section.settings.goo_particles,
+        speed: section.settings.animation_speed
+      %}
+    {% endif %}
+  {% endif  %}
   
   <!-- Collections Sidebar -->
-  <div class="lg:w-1/4">
-    <h2 class="text-lg lg:text-4xl mb-6 hidden font-bold md:block">{{ 'collections.featured_title' | t }}</h2>
-    
+  <div class="lg:w-1/4">    
     <nav class="flex flex-row gap-6 lg:gap-3 px-4 lg:flex-col overflow-x-scroll lg:overflow-hidden">
-      <button class="w-max p-2 px-3 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
+      <button class="w-max p-2 px-3 rounded-lg cursor-pointer" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
         <a href="{{ routes.all_products_collection_url }}" class="text-md lg:text-2xl xl:text-3xl font-thin w-max block md:flex">Shop All</a>
       </button>
       {% if section.settings.collection_list %}
         {% for collection in section.settings.collection_list %}
           {% unless collection.products.size == 0 %}
             <button class="collection-link w-max p-2 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border-0 hover:border-l-4" data-collection-handle="{{ collection.handle }}" data-collection-title="{{ collection.title | escape }}" data-collection-id="{{ collection.id }}" >
-              <span class="text-md lg:text-2xl xl:text-3xl font-thin w-max block md:flex">{{ collection.title }}</span>
+              <span class="text-md lg:text-2xl xl:text-2xl font-bold w-max block md:flex">{{ collection.title }}</span>
             </button>
           {% endunless %}
         {% endfor %}
@@ -95,10 +94,6 @@
    * - Auto-selects default collection based on section settings
    * - Provides public API: window.selectCollection('handle')
    * - Exposes manager: window.featuredCollectionsManager
-   * 
-   * EXAMPLE:
-   * selectCollection('halloween');  // Select by handle
-   * featuredCollectionsManager.getCurrentCollection();  // Get active collection
    */
 
   class FeaturedCollectionsManager {
@@ -125,7 +120,7 @@
         previewContent: document.querySelector('.preview-content'),
         productsGrid: document.querySelector('.products-grid'),
         viewCollectionBtn: document.querySelector('.view-collection'),
-        collectionTitle: document.querySelector('.collection-title')
+        // collectionTitle: document.querySelector('.collection-title')
       };
       
       this.init();
@@ -338,7 +333,7 @@
   "settings": [
     {
       "type": "header",
-      "content": "📚 Collection Settings"
+      "content": "Collection Settings"
     },
     {
       "type": "collection_list",

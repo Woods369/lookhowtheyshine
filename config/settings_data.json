@@ -7,7 +7,6 @@
  * made to this file may be overwritten.
  * ------------------------------------------------------------
  */
-
 {
   "current": {
     "type_heading_font": "poppins_n3",
@@ -15,7 +14,8 @@
     "background_color": "#ffffff",
     "foreground_color": "#070202",
     "input_corner_radius": 0,
-    "is_black_friday": true,
+    "is_black_friday": false,
+    "is_xmas": true,
     "content_for_index": []
   }
 }
